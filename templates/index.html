@@ -250,7 +250,7 @@
         formData.append('imagen', archivoInput.files[0]); // Nombre clave: 'imagen'
 
         try {
-            const res = await fetch(API_URL, { method: 'POST', body: formData });
+            const res = await fetch(`${API_URL}/`, { method: 'POST', body: formData });
             if(res.ok) {
                 alert("¡Publicado con éxito!");
                 document.getElementById('nombre').value = '';
