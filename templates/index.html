@@ -141,201 +141,180 @@
         </div>
     </div>
 
-    <script>
-        const API_URL = '/productos'; 
+   <script>
+    // 1. CONFIGURACIÓN INICIAL
+    const API_URL = '/productos'; 
     let categoriaActual = '';
-        function loginAdmin() {
-    // 1. Abre un cuadro de texto para que pongas la clave
-    const pass = prompt("Ingrese la clave de administrador:");
-    
-    // 2. Verificamos si la clave es correcta
-    // (Podés cambiar 'neuquen2026' por la que vos quieras)
-    if (pass === 'neuquen2026') {
-        alert("¡Acceso concedido! Modo edición activado.");
-        
-        // 3. Quitamos el 'hidden' para que el formulario aparezca
-        document.getElementById('seccion-admin').classList.remove('hidden');
-        
-        // 4. Agregamos una marca al 'body' para que los botones de borrar se vean
-        document.body.classList.add('admin-mode');
-        
-    } else {
-        alert("Clave incorrecta. Acceso denegado.");
-    }
-}
-        // Esta función crea tarjetas de mentira (esqueletos) para mostrar mientras cargan los datos reales
-function mostrarEsqueletos() {
-    const div = document.getElementById('lista');
-    div.innerHTML = ''; // Borramos lo que haya (si había productos viejos, se van)
-    
-    // Usamos un bucle para crear 5 tarjetas iguales
-    for (let i = 0; i < 5; i++) {
-        div.innerHTML += `
-            <div class="bg-white rounded-md overflow-hidden flex flex-col h-full border border-gray-100 animate-pulse">
-                <div class="p-4 bg-gray-50 h-[180px] flex items-center justify-center">
-                    <div class="skeleton w-full h-full"></div>
-                </div>
-                <div class="p-4 space-y-3 flex-grow">
-                    <div class="skeleton h-3 w-3/4"></div> <div class="skeleton h-6 w-1/2"></div> <div class="skeleton h-3 w-full"></div> </div>
-            </div>
-        `;
-    }
-}
 
-        async function cargar(cat = '', busqueda = '') {
-    // 1. ANTES DE LLAMAR AL SERVIDOR: Mostramos los esqueletos
-    mostrarEsqueletos();
-
-    try {
-        let url = `${API_URL}?`;
-        if(cat) url += `categoria=${cat}&`;
-        if(busqueda) url += `busqueda=${busqueda}`;
-
-        // 2. DETALLE CLAVE: Esperamos 500ms (medio segundo)
-        // Esto es para que el ojo humano llegue a ver la animación, 
-        // ya que tu compu es demasiado rápida cargando.
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const res = await fetch(url);
-        const productos = await res.json();
-        
-        const div = document.getElementById('lista');
-        
-        // 3. IMPORTANTÍSIMO: Al llegar aquí, limpiamos los esqueletos 
-        // para poner los productos reales.
-        div.innerHTML = ''; 
-        
-        if(productos.length === 0) {
-            div.innerHTML = `<div class="col-span-full py-20 text-center">No se encontraron productos.</div>`;
-            return;
+    // 2. MODO ADMINISTRADOR
+    function loginAdmin() {
+        const pass = prompt("Ingrese la clave de administrador:");
+        if (pass === 'neuquen2026') {
+            alert("¡Acceso concedido! Modo edición activado.");
+            document.getElementById('seccion-admin').classList.remove('hidden');
+            document.body.classList.add('admin-mode');
+        } else {
+            alert("Clave incorrecta. Acceso denegado.");
         }
+    }
 
-        // 4. Dibujamos los productos de siempre
-        productos.forEach(p => {
-            const precioFormateado = new Intl.NumberFormat('es-AR', {
-                style: 'currency', currency: 'ARS', minimumFractionDigits: 0
-            }).format(p.precio);
-
+    // 3. EFECTO CARGANDO (SKELETONS)
+    function mostrarEsqueletos() {
+        const div = document.getElementById('lista');
+        div.innerHTML = ''; 
+        for (let i = 0; i < 5; i++) {
             div.innerHTML += `
-                <div onclick="verDetalle('${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, '${p.imagen}', '${p.categoria}', '${p.descripcion.replace(/'/g, "\\'")}')" 
-                     class="product-card bg-white rounded-md overflow-hidden flex flex-col h-full border border-transparent hover:border-gray-200 transition-all cursor-pointer group">
-                    <div class="p-4 bg-white flex items-center justify-center">
-                        <img src="${p.imagen}" class="product-img w-full" onerror="this.src='https://via.placeholder.com/150?text=Sin+Imagen'">
+                <div class="bg-white rounded-md overflow-hidden flex flex-col h-full border border-gray-100 animate-pulse">
+                    <div class="p-4 bg-gray-50 h-[180px] flex items-center justify-center">
+                        <div class="skeleton w-full h-full"></div>
                     </div>
-                    <div class="p-4 border-t border-gray-50 flex flex-col flex-grow">
-                        <h3 class="text-[13px] font-light text-gray-600 truncate mb-1 group-hover:text-blue-500">${p.nombre}</h3>
-                        <div class="flex flex-col">
-                            <span class="text-2xl font-normal text-[#333] tracking-tight">${precioFormateado}</span>
-                            <span class="text-[13px] text-[#00a650] font-semibold">Envío gratis ⚡</span>
-                        </div>
-                        <div class="mt-auto pt-4 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-500 font-bold uppercase">${p.categoria}</span>
-                            <button onclick="borrar(event, ${p.id})" class="text-gray-300 hover:text-red-500 transition-colors">🗑️</button>
-                        </div>
+                    <div class="p-4 space-y-3 flex-grow">
+                        <div class="skeleton h-3 w-3/4"></div> 
+                        <div class="skeleton h-6 w-1/2"></div> 
+                        <div class="skeleton h-3 w-full"></div> 
                     </div>
                 </div>`;
-        });
-    } catch (e) { 
-        console.error("Error al cargar:", e); 
-        document.getElementById('lista').innerHTML = "Error al conectar con el servidor.";
+        }
     }
-}
 
-        // LÓGICA DEL MODAL
-        function verDetalle(nombre, precio, imagen, categoria, descripcion) {
-            document.getElementById('modal-nombre').innerText = nombre;
-            document.getElementById('modal-cat').innerText = categoria;
-            document.getElementById('modal-desc').innerText = descripcion || 'Sin descripción adicional.';
-            document.getElementById('modal-img').src = imagen;
+    // 4. CARGAR PRODUCTOS DESDE EL SERVIDOR
+    async function cargar(cat = '', busqueda = '') {
+        mostrarEsqueletos();
+        try {
+            let url = `${API_URL}?`;
+            if(cat) url += `categoria=${cat}&`;
+            if(busqueda) url += `busqueda=${busqueda}`;
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const res = await fetch(url);
+            const productos = await res.json();
             
-            const precioFormateado = new Intl.NumberFormat('es-AR', {
-                style: 'currency', currency: 'ARS', minimumFractionDigits: 0
-            }).format(precio);
-            document.getElementById('modal-precio').innerText = precioFormateado;
-
-            const mensaje = `Hola! Me interesa este producto de la Feria: ${nombre} (${precioFormateado}). ¿Sigue disponible?`;
-            document.getElementById('btn-whatsapp').href = `https://wa.me/5492990000000?text=${encodeURIComponent(mensaje)}`;
-
-            document.getElementById('modal-detalle').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function cerrarModal() {
-            document.getElementById('modal-detalle').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        document.getElementById('buscador').addEventListener('input', (e) => {
-            cargar(categoriaActual, e.target.value);
-        });
-
-        function seleccionarCategoria(cat) {
-            categoriaActual = cat;
-            document.getElementById('buscador').value = '';
-            cargar(cat);
-        }
-
-        function resetPagina() {
-            categoriaActual = '';
-            document.getElementById('buscador').value = '';
-            cargar();
-        }
-
-        async function guardar() {
-            const btn = event.target;
-            const n = document.getElementById('nombre').value;
-            const p = document.getElementById('precio').value;
-            const c = document.getElementById('categoria').value;
-            const d = document.getElementById('descripcion').value; // Nueva descripción
-            const archivoInput = document.getElementById('archivo');
-
-            if(!n || !p || !archivoInput.files[0]) return alert("Completá nombre, precio e imagen.");
-
-            btn.innerText = "Publicando...";
-            btn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('nombre', n);
-            formData.append('descripcion', d || "Sin descripción"); // Enviamos la descripción real
-            formData.append('precio', p);
-            formData.append('categoria', c);
-            formData.append('archivo', archivoInput.files[0]);
-
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: formData });
-                if(res.ok) {
-                    cargar(categoriaActual); 
-                    document.getElementById('nombre').value = '';
-                    document.getElementById('precio').value = '';
-                    document.getElementById('descripcion').value = '';
-                    archivoInput.value = '';
-                    alert("¡Publicado!");
-                }
-            } catch (e) { alert("Error."); }
-            finally {
-                btn.innerText = "Publicar ahora";
-                btn.disabled = false;
+            const div = document.getElementById('lista');
+            div.innerHTML = ''; 
+            
+            if(productos.length === 0) {
+                div.innerHTML = `<div class="col-span-full py-20 text-center text-gray-500">No se encontraron productos en esta categoría.</div>`;
+                return;
             }
+
+            productos.forEach(p => {
+                const precioFormateado = new Intl.NumberFormat('es-AR', {
+                    style: 'currency', currency: 'ARS', minimumFractionDigits: 0
+                }).format(p.precio);
+
+                div.innerHTML += `
+                    <div onclick="verDetalle('${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, '${p.imagen}', '${p.categoria}', '${p.descripcion.replace(/'/g, "\\'")}')" 
+                         class="product-card bg-white rounded-md overflow-hidden flex flex-col h-full border border-transparent hover:border-gray-200 transition-all cursor-pointer group">
+                        <div class="p-4 bg-white flex items-center justify-center">
+                            <img src="${p.imagen}" class="product-img w-full" onerror="this.src='https://via.placeholder.com/150?text=Sin+Imagen'">
+                        </div>
+                        <div class="p-4 border-t border-gray-50 flex flex-col flex-grow">
+                            <h3 class="text-[13px] font-light text-gray-600 truncate mb-1 group-hover:text-blue-500">${p.nombre}</h3>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-normal text-[#333] tracking-tight">${precioFormateado}</span>
+                                <span class="text-[13px] text-[#00a650] font-semibold">Envío gratis ⚡</span>
+                            </div>
+                            <div class="mt-auto pt-4 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-500 font-bold uppercase">${p.categoria}</span>
+                                <button onclick="borrar(event, ${p.id})" class="text-gray-300 hover:text-red-500 transition-colors">🗑️</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        } catch (e) { 
+            console.error("Error al cargar:", e); 
+            document.getElementById('lista').innerHTML = "<div class='col-span-full text-center py-10'>Error al conectar con el servidor de la Feria.</div>";
         }
-
-       async function borrar(event, id) {
-    event.stopPropagation(); 
-
-    // --- ESTA ES LA LÍNEA DE SEGURIDAD ---
-    const confirmar = confirm("⚠️ ¿Estás seguro de que querés eliminar este producto? Esta acción no se puede deshacer.");
-    if (!confirmar) return; // Si el usuario toca "Cancelar", la función se corta acá.
-
-    try {
-        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-            alert("Producto eliminado correctamente.");
-            cargar(categoriaActual);
-        }
-    } catch (e) { 
-        alert("Hubo un error al intentar borrar."); 
     }
-}
-        window.onload = () => cargar();
-    </script>
-</body>
-</html>
+
+    // 5. GUARDAR NUEVO PRODUCTO
+    async function guardar() {
+        const btn = event.target;
+        const n = document.getElementById('nombre').value;
+        const p = document.getElementById('precio').value;
+        const c = document.getElementById('categoria').value;
+        const d = document.getElementById('descripcion').value; 
+        const archivoInput = document.getElementById('archivo');
+
+        if(!n || !p || !archivoInput.files[0]) return alert("Completá nombre, precio e imagen.");
+
+        btn.innerText = "Publicando...";
+        btn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('nombre', n);
+        formData.append('descripcion', d || "Sin descripción");
+        formData.append('precio', p);
+        formData.append('categoria', c);
+        formData.append('imagen', archivoInput.files[0]); // Nombre clave: 'imagen'
+
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: formData });
+            if(res.ok) {
+                alert("¡Publicado con éxito!");
+                document.getElementById('nombre').value = '';
+                document.getElementById('precio').value = '';
+                document.getElementById('descripcion').value = '';
+                archivoInput.value = '';
+                cargar(categoriaActual); 
+            } else {
+                alert("Hubo un problema con el servidor al publicar.");
+            }
+        } catch (e) { 
+            alert("Error de conexión. Intentá de nuevo."); 
+        } finally {
+            btn.innerText = "Publicar ahora";
+            btn.disabled = false;
+        }
+    }
+
+    // 6. ELIMINAR PRODUCTO
+    async function borrar(event, id) {
+        event.stopPropagation(); 
+        if (!confirm("⚠️ ¿Estás seguro de eliminar este producto?")) return;
+
+        try {
+            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert("Producto eliminado.");
+                cargar(categoriaActual);
+            }
+        } catch (e) { alert("Error al borrar."); }
+    }
+
+    // 7. FUNCIONES DE INTERFAZ
+    function verDetalle(nombre, precio, imagen, categoria, descripcion) {
+        document.getElementById('modal-nombre').innerText = nombre;
+        document.getElementById('modal-cat').innerText = categoria;
+        document.getElementById('modal-desc').innerText = descripcion || 'Sin descripción adicional.';
+        document.getElementById('modal-img').src = imagen;
+        
+        const precioFormateado = new Intl.NumberFormat('es-AR', {
+            style: 'currency', currency: 'ARS', minimumFractionDigits: 0
+        }).format(precio);
+        document.getElementById('modal-precio').innerText = precioFormateado;
+
+        const mensaje = `Hola! Me interesa este producto: ${nombre} (${precioFormateado}).`;
+        document.getElementById('btn-whatsapp').href = `https://wa.me/5492990000000?text=${encodeURIComponent(mensaje)}`;
+        document.getElementById('modal-detalle').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModal() {
+        document.getElementById('modal-detalle').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    function seleccionarCategoria(cat) {
+        categoriaActual = cat;
+        document.getElementById('buscador').value = '';
+        cargar(cat);
+    }
+
+    document.getElementById('buscador').addEventListener('input', (e) => {
+        cargar(categoriaActual, e.target.value);
+    });
+
+    window.onload = () => cargar();
+</script>
