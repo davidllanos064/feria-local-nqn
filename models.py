@@ -8,5 +8,6 @@ class Producto(Base):
     nombre = Column(String)
     descripcion = Column(String)
     precio = Column(Float)
-    imagen = Column(String)
-    categoria = Column(String)  # <--- Fundamental para los filtros de burbujas
+    categoria = Column(String)
+    # Cambiamos 'imagen' por 'imagen_url' para que coincida con main.py y schemas.py
+    imagen_url = Column(String)
