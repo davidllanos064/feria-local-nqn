@@ -50,10 +50,12 @@ def get_db():
 
 # --- RUTA PRINCIPAL (Lo que ve el cliente al entrar al link) ---
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def home(request: Request):
-    # IMPORTANTE: El diccionario {"request": request} es obligatorio para Jinja2
-    return templates.TemplateResponse("index.html", {"request": request})
+    # Cambiá tu línea 56 por esta:
+    return templates.TemplateResponse(
+        request=request, name="index.html"
+    )
 
 # --- RUTAS DE LA API (Gestión de Productos) ---
 
