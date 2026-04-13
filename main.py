@@ -1,85 +1,118 @@
 import shutil
 import os
+import uuid
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 import models
 import schemas 
 from database import engine, SessionLocal
 
 # --- INICIO: CONFIGURACIÓN PARA RENDER ---
-# Esta línea crea las tablas en la base de datos de Render automáticamente
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Dependencia para obtener la base de datos
+# 1. CORS: Fundamental para que el navegador no bloquee las peticiones
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-# --- FIN: CONFIGURACIÓN PARA RENDER ---
 
-# 1. RUTAS ABSOLUTAS
+# 2. RUTAS ABSOLUTAS Y ARCHIVOS ESTÁTICOS
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGENES_DIR = os.path.join(BASE_DIR, "imagenes")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
-# Asegurar que la carpeta de imágenes exista
 if not os.path.exists(IMAGENES_DIR):
     os.makedirs(IMAGENES_DIR)
 
-# Montar archivos estáticos para las fotos
 app.mount("/imagenes", StaticFiles(directory=IMAGENES_DIR), name="imagenes")
-
-# Configurar plantillas
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # --- RUTAS DE LA APLICACIÓN ---
 
+# A. Carga la página (Frontend)
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request, db: Session = Depends(get_db)):
-    """Ruta principal que muestra los productos de la feria"""
-    # Buscamos todos los productos en la base de datos de Render
-    productos = db.query(models.Producto).all()
-    
-    return templates.TemplateResponse(
-        request=request, 
-        name="index.html", 
-        context={"productos": productos}
-    )
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/productos/", response_model=schemas.Producto)
+# B. Envía la lista de productos al JavaScript (Soluciona el error de la captura)
+@app.get("/productos")
+async def listar_productos(
+    categoria: Optional[str] = None, 
+    busqueda: Optional[str] = None, 
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Producto)
+    if categoria:
+        query = query.filter(models.Producto.categoria == categoria)
+    if busqueda:
+        query = query.filter(models.Producto.nombre.ilike(f"%{busqueda}%"))
+    
+    productos = query.all()
+    
+    # IMPORTANTE: El JS espera estos nombres de campo exactos
+    return [{
+        "id": p.id,
+        "nombre": p.nombre,
+        "precio": p.precio,
+        "descripcion": p.descripcion or "Sin descripción",
+        "categoria": p.categoria or "General",
+        "imagen": p.imagen_url
+    } for p in productos]
+
+# C. Guarda nuevos productos
+@app.post("/productos")
+@app.post("/productos/")
 async def crear_producto(
     nombre: str = Form(...),
     precio: float = Form(...),
+    categoria: str = Form(...),
     descripcion: str = Form(None),
     imagen: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    """Ruta para cargar nuevos productos"""
-    # Guardamos la imagen en la carpeta local del servidor
-    ruta_imagen = os.path.join(IMAGENES_DIR, imagen.filename)
-    with open(ruta_imagen, "wb") as buffer:
+    # Nombre de archivo único con UUID
+    ext = imagen.filename.split(".")[-1]
+    nombre_seguro = f"{uuid.uuid4()}.{ext}"
+    ruta_guardado = os.path.join(IMAGENES_DIR, nombre_seguro)
+    
+    with open(ruta_guardado, "wb") as buffer:
         shutil.copyfileobj(imagen.file, buffer)
     
-    # Creamos el registro en la base de datos
-    nuevo_producto = models.Producto(
+    nuevo = models.Producto(
         nombre=nombre,
         precio=precio,
-        descripcion=descripcion,
-        imagen_url=f"/imagenes/{imagen.filename}"
+        categoria=categoria,
+        descripcion=descripcion or "Sin descripción",
+        imagen_url=f"/imagenes/{nombre_seguro}"
     )
-    db.add(nuevo_producto)
+    db.add(nuevo)
     db.commit()
-    db.refresh(nuevo_producto)
-    return nuevo_producto
+    db.refresh(nuevo)
+    return nuevo
 
-# Podés seguir agregando tus otras rutas aquí abajo...
+# D. Elimina productos (Para el botón de basura)
+@app.delete("/productos/{p_id}")
+async def eliminar_producto(p_id: int, db: Session = Depends(get_db)):
+    producto = db.query(models.Producto).filter(models.Producto.id == p_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(producto)
+    db.commit()
+    return {"status": "borrado"}
