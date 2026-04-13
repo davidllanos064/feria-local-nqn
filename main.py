@@ -13,12 +13,12 @@ import models
 import schemas 
 from database import engine, SessionLocal
 
-# --- INICIO: CONFIGURACIÓN PARA RENDER ---
+# --- CONFIGURACIÓN DE BASE DE DATOS ---
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# 1. CORS: Fundamental para que el navegador no bloquee las peticiones
+# 1. CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,7 +33,7 @@ def get_db():
     finally:
         db.close()
 
-# 2. RUTAS ABSOLUTAS Y ARCHIVOS ESTÁTICOS
+# 2. RUTAS DE ARCHIVOS
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGENES_DIR = os.path.join(BASE_DIR, "imagenes")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
@@ -46,12 +46,16 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # --- RUTAS DE LA APLICACIÓN ---
 
-# A. Carga la página (Frontend)
+# A. Carga la página (CORREGIDO PARA EVITAR EL ERROR EN RENDER)
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-# B. Envía la lista de productos al JavaScript (Soluciona el error de la captura)
+    # Esta sintaxis es la única que acepta la versión de FastAPI en Render
+    return templates.TemplateResponse(
+        request=request, 
+        name="index.html", 
+        context={"request": request}
+    )
+# B. Envía la lista de productos
 @app.get("/productos")
 async def listar_productos(
     categoria: Optional[str] = None, 
@@ -66,19 +70,17 @@ async def listar_productos(
     
     productos = query.all()
     
-    # IMPORTANTE: El JS espera estos nombres de campo exactos
     return [{
         "id": p.id,
         "nombre": p.nombre,
         "precio": p.precio,
         "descripcion": p.descripcion or "Sin descripción",
         "categoria": p.categoria or "General",
-        "imagen": p.imagen_url
+        "imagen": p.imagen_url # Esto coincide con tu models.py corregido
     } for p in productos]
 
 # C. Guarda nuevos productos
 @app.post("/productos")
-@app.post("/productos/")
 async def crear_producto(
     nombre: str = Form(...),
     precio: float = Form(...),
@@ -87,7 +89,6 @@ async def crear_producto(
     imagen: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    # Nombre de archivo único con UUID
     ext = imagen.filename.split(".")[-1]
     nombre_seguro = f"{uuid.uuid4()}.{ext}"
     ruta_guardado = os.path.join(IMAGENES_DIR, nombre_seguro)
@@ -107,7 +108,7 @@ async def crear_producto(
     db.refresh(nuevo)
     return nuevo
 
-# D. Elimina productos (Para el botón de basura)
+# D. Elimina productos
 @app.delete("/productos/{p_id}")
 async def eliminar_producto(p_id: int, db: Session = Depends(get_db)):
     producto = db.query(models.Producto).filter(models.Producto.id == p_id).first()
