@@ -27,14 +27,13 @@
             z-index: 60;
         }
 
-        /* Estilo personalizado para el nuevo título */
         .titulo-remarcado {
-            color: rgba(31, 41, 55, 0.9); /* Negro casi total */
+            color: rgba(31, 41, 55, 0.9);
             font-weight: 900;
             letter-spacing: -0.05em;
         }
         .subtitulo-opaco {
-            color: rgba(107, 114, 128, 0.6); /* Gris medio transparente */
+            color: rgba(107, 114, 128, 0.6);
             font-weight: 700;
         }
     </style>
@@ -158,11 +157,14 @@
     <script>
     const API_URL = '/productos'; 
     let categoriaActual = '';
+    let isAdmin = false; // Variable para rastrear si es admin
 
     function loginAdmin() {
         const pass = prompt("Acceso Restringido. Ingrese la clave:");
         if (pass === 'neuquen2026') {
+            isAdmin = true;
             document.getElementById('seccion-admin').classList.remove('hidden');
+            cargar(categoriaActual); // Recargamos para mostrar botones de eliminar
         } else {
             alert("Clave incorrecta.");
         }
@@ -183,9 +185,18 @@
                     style: 'currency', currency: 'ARS', minimumFractionDigits: 0
                 }).format(p.precio);
 
+                // Botón de eliminar (solo se agrega si isAdmin es true)
+                const btnEliminar = isAdmin ? `
+                    <button onclick="eliminarProducto(event, '${p.id || p._id || p.nombre}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>` : '';
+
                 div.innerHTML += `
                     <div onclick="verDetalle('${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, '${p.imagen}', '${p.categoria}', '${p.descripcion.replace(/'/g, "\\'")}')" 
-                         class="product-card bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-100 transition-all cursor-pointer group">
+                         class="product-card bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-100 transition-all cursor-pointer group relative">
+                        ${btnEliminar}
                         <div class="p-2 flex items-center justify-center bg-white relative">
                             <span class="absolute top-3 left-3 text-[9px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-widest">${p.categoria}</span>
                             <img src="${p.imagen}" class="product-img w-full" onerror="this.src='https://via.placeholder.com/300?text=Feria+Neuquen'">
@@ -197,6 +208,20 @@
                     </div>`;
             });
         } catch (e) { console.error("Error:", e); }
+    }
+
+    async function eliminarProducto(event, id) {
+        event.stopPropagation(); // Evita que se abra el modal al hacer clic en eliminar
+        if(!confirm("¿Estás seguro de que querés eliminar este producto?")) return;
+
+        try {
+            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if(res.ok) {
+                cargar(categoriaActual); // Refrescar lista
+            } else {
+                alert("Error al eliminar. Asegurate que el servidor soporte DELETE en esa ruta.");
+            }
+        } catch (e) { alert("Error de conexión."); }
     }
 
     async function guardar() {
