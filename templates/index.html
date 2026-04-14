@@ -78,6 +78,12 @@
         </div>
     </nav>
 
+    <div class="container mx-auto px-4 max-w-6xl mt-6">
+        <a href="https://wa.me/TU_CELULAR_AQUÍ?text=Hola! Me interesa poner mi puesto virtual en la Feria Neuquén." target="_blank" class="group block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black text-center py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg transition-all transform hover:scale-[1.01]">
+            🚀 ¿Querés vender tus productos acá? Unite a la Feria hoy mismo
+        </a>
+    </div>
+
     <div class="container mx-auto px-4 max-w-6xl mt-10">
         
         <div id="seccion-admin" class="bg-white p-8 rounded-2xl shadow-xl mb-12 border-2 border-indigo-50 hidden">
@@ -143,10 +149,16 @@
                     <span id="modal-cat" class="inline-block text-[10px] bg-indigo-100 text-indigo-700 font-black uppercase tracking-[0.2em] mb-4 px-3 py-1 rounded-full w-fit"></span>
                     <h2 id="modal-nombre" class="text-3xl font-black text-gray-900 mb-2 leading-tight"></h2>
                     <p id="modal-desc" class="text-gray-500 text-sm mb-8 leading-relaxed"></p>
-                    <div class="mt-auto">
-                        <span id="modal-precio" class="block text-4xl font-light text-indigo-600 mb-8"></span>
-                        <a id="btn-whatsapp" target="_blank" class="flex items-center justify-center gap-3 bg-[#128c7e] text-white py-4 rounded-2xl font-bold hover:bg-[#075e54] transition shadow-xl">
-                            Hablar con el Vendedor
+                    
+                    <div class="mt-auto space-y-3">
+                        <span id="modal-precio" class="block text-4xl font-light text-indigo-600 mb-6"></span>
+                        
+                        <button onclick="comprarDirecto()" class="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-xl">
+                            💳 Comprar Ahora
+                        </button>
+
+                        <a id="btn-whatsapp" target="_blank" class="flex items-center justify-center gap-3 border-2 border-[#128c7e] text-[#128c7e] py-3 rounded-2xl font-bold hover:bg-[#128c7e] hover:text-white transition">
+                            Consultar al Vendedor
                         </a>
                     </div>
                 </div>
@@ -157,14 +169,14 @@
     <script>
     const API_URL = '/productos'; 
     let categoriaActual = '';
-    let isAdmin = false; // Variable para rastrear si es admin
+    let isAdmin = false;
 
     function loginAdmin() {
         const pass = prompt("Acceso Restringido. Ingrese la clave:");
         if (pass === 'neuquen2026') {
             isAdmin = true;
             document.getElementById('seccion-admin').classList.remove('hidden');
-            cargar(categoriaActual); // Recargamos para mostrar botones de eliminar
+            cargar(categoriaActual);
         } else {
             alert("Clave incorrecta.");
         }
@@ -185,7 +197,6 @@
                     style: 'currency', currency: 'ARS', minimumFractionDigits: 0
                 }).format(p.precio);
 
-                // Botón de eliminar (solo se agrega si isAdmin es true)
                 const btnEliminar = isAdmin ? `
                     <button onclick="eliminarProducto(event, '${p.id || p._id || p.nombre}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,17 +222,20 @@
     }
 
     async function eliminarProducto(event, id) {
-        event.stopPropagation(); // Evita que se abra el modal al hacer clic en eliminar
+        event.stopPropagation();
         if(!confirm("¿Estás seguro de que querés eliminar este producto?")) return;
-
         try {
             const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if(res.ok) {
-                cargar(categoriaActual); // Refrescar lista
-            } else {
-                alert("Error al eliminar. Asegurate que el servidor soporte DELETE en esa ruta.");
-            }
+            if(res.ok) cargar(categoriaActual);
         } catch (e) { alert("Error de conexión."); }
+    }
+
+    // LÓGICA DE COMPRA DIRECTA (ADMIN RECIBE EL DINERO)
+    function comprarDirecto() {
+        const nombreProd = document.getElementById('modal-nombre').innerText;
+        const precioProd = document.getElementById('modal-precio').innerText;
+        const mensaje = `Hola! Quiero comprar el producto: ${nombreProd} (${precioProd}). ¿Cómo realizo el pago?`;
+        window.open(`https://wa.me/TU_CELULAR_AQUÍ?text=${encodeURIComponent(mensaje)}`, '_blank');
     }
 
     async function guardar() {
@@ -249,7 +263,10 @@
         document.getElementById('modal-desc').innerText = descripcion;
         document.getElementById('modal-img').src = imagen;
         document.getElementById('modal-precio').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(precio);
-        document.getElementById('btn-whatsapp').href = `https://wa.me/5492990000000?text=Hola! Me interesa: ${nombre}`;
+        
+        // Link del vendedor para consultas
+        document.getElementById('btn-whatsapp').href = `https://wa.me/5492990000000?text=Hola! Tengo una consulta sobre: ${nombre}`;
+        
         document.getElementById('modal-detalle').classList.remove('hidden');
     }
 
