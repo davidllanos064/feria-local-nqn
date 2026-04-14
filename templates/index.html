@@ -79,7 +79,7 @@
     </nav>
 
     <div class="container mx-auto px-4 max-w-6xl mt-6">
-        <a href="https://wa.me/TU_CELULAR_AQUÍ?text=Hola! Me interesa poner mi puesto virtual en la Feria Neuquén." target="_blank" class="group block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black text-center py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg transition-all transform hover:scale-[1.01]">
+        <a href="https://wa.me/5492996256119?text=Hola! Me interesa poner mi puesto virtual en la Feria Neuquén." target="_blank" class="group block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black text-center py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg transition-all transform hover:scale-[1.01]">
             🚀 ¿Querés vender tus productos acá? Unite a la Feria hoy mismo
         </a>
     </div>
@@ -230,12 +230,12 @@
         } catch (e) { alert("Error de conexión."); }
     }
 
-    // LÓGICA DE COMPRA DIRECTA (ADMIN RECIBE EL DINERO)
+    // LÓGICA DE COMPRA DIRECTA CON TU NÚMERO
     function comprarDirecto() {
         const nombreProd = document.getElementById('modal-nombre').innerText;
         const precioProd = document.getElementById('modal-precio').innerText;
         const mensaje = `Hola! Quiero comprar el producto: ${nombreProd} (${precioProd}). ¿Cómo realizo el pago?`;
-        window.open(`https://wa.me/TU_CELULAR_AQUÍ?text=${encodeURIComponent(mensaje)}`, '_blank');
+        window.open(`https://wa.me/5492996256119?text=${encodeURIComponent(mensaje)}`, '_blank');
     }
 
     async function guardar() {
@@ -264,8 +264,8 @@
         document.getElementById('modal-img').src = imagen;
         document.getElementById('modal-precio').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(precio);
         
-        // Link del vendedor para consultas
-        document.getElementById('btn-whatsapp').href = `https://wa.me/5492990000000?text=Hola! Tengo una consulta sobre: ${nombre}`;
+        // Link del vendedor genérico (podrás cambiarlo dinámicamente si tienes el dato del vendedor)
+        document.getElementById('btn-whatsapp').href = `https://wa.me/5492996256119?text=Hola! Tengo una consulta sobre: ${nombre}`;
         
         document.getElementById('modal-detalle').classList.remove('hidden');
     }
