@@ -140,4 +140,141 @@
 
     <div id="modal-detalle" class="fixed inset-0 bg-indigo-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl shadow-2xl relative flex flex-col">
-            <button onclick="cerrarModal()" class="absolute top-5 right
+            <button onclick="cerrarModal()" class="absolute top-5 right-5 text-gray-400 hover:text-indigo-600 z-10 p-2 bg-gray-100 rounded-full transition">✕</button>
+            <div class="flex flex-col md:flex-row h-full">
+                <div class="md:w-1/2 p-8 flex items-center justify-center bg-gray-50 border-r border-gray-100">
+                    <img id="modal-img" src="" class="max-h-[450px] w-full object-contain drop-shadow-2xl">
+                </div>
+                <div class="md:w-1/2 p-10 flex flex-col">
+                    <span id="modal-cat" class="inline-block text-[10px] bg-indigo-100 text-indigo-700 font-black uppercase tracking-[0.2em] mb-4 px-3 py-1 rounded-full w-fit"></span>
+                    <h2 id="modal-nombre" class="text-3xl font-black text-gray-900 mb-2 leading-tight"></h2>
+                    <p id="modal-desc" class="text-gray-500 text-sm mb-8 leading-relaxed"></p>
+                    
+                    <div class="mt-auto space-y-3">
+                        <span id="modal-precio" class="block text-4xl font-light text-indigo-600 mb-6"></span>
+                        
+                        <button onclick="comprarDirecto()" class="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-xl">
+                            💳 Comprar Ahora
+                        </button>
+
+                        <a id="btn-whatsapp" target="_blank" class="flex items-center justify-center gap-3 border-2 border-[#128c7e] text-[#128c7e] py-3 rounded-2xl font-bold hover:bg-[#128c7e] hover:text-white transition">
+                            Consultar al Vendedor
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = '/productos'; 
+    let categoriaActual = '';
+    let isAdmin = false;
+
+    function loginAdmin() {
+        const pass = prompt("Acceso Restringido. Ingrese la clave:");
+        if (pass === 'neuquen2026') {
+            isAdmin = true;
+            document.getElementById('seccion-admin').classList.remove('hidden');
+            cargar(categoriaActual);
+        } else {
+            alert("Clave incorrecta.");
+        }
+    }
+
+    async function cargar(cat = '', busqueda = '') {
+        try {
+            let url = `${API_URL}?`;
+            if(cat) url += `categoria=${cat}&`;
+            if(busqueda) url += `busqueda=${busqueda}`;
+            const res = await fetch(url);
+            const productos = await res.json();
+            const div = document.getElementById('lista');
+            div.innerHTML = ''; 
+            
+            productos.forEach(p => {
+                const precioFormateado = new Intl.NumberFormat('es-AR', {
+                    style: 'currency', currency: 'ARS', minimumFractionDigits: 0
+                }).format(p.precio);
+
+                const btnEliminar = isAdmin ? `
+                    <button onclick="eliminarProducto(event, '${p.id || p._id || p.nombre}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>` : '';
+
+                div.innerHTML += `
+                    <div onclick="verDetalle('${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, '${p.imagen}', '${p.categoria}', '${p.descripcion.replace(/'/g, "\\'")}')" 
+                         class="product-card bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-100 transition-all cursor-pointer group relative">
+                        ${btnEliminar}
+                        <div class="p-2 flex items-center justify-center bg-white relative">
+                            <span class="absolute top-3 left-3 text-[9px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-widest">${p.categoria}</span>
+                            <img src="${p.imagen}" class="product-img w-full" onerror="this.src='https://via.placeholder.com/300?text=Feria+Neuquen'">
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow bg-white">
+                            <h3 class="text-sm font-semibold text-gray-500 truncate mb-1">${p.nombre}</h3>
+                            <span class="text-2xl font-bold text-gray-900 tracking-tight mb-3">${precioFormateado}</span>
+                        </div>
+                    </div>`;
+            });
+        } catch (e) { console.error("Error:", e); }
+    }
+
+    async function eliminarProducto(event, id) {
+        event.stopPropagation();
+        if(!confirm("¿Estás seguro de que querés eliminar este producto?")) return;
+        try {
+            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if(res.ok) cargar(categoriaActual);
+        } catch (e) { alert("Error de conexión."); }
+    }
+
+    // LÓGICA DE COMPRA DIRECTA
+    function comprarDirecto() {
+        const nombreProd = document.getElementById('modal-nombre').innerText;
+        const precioProd = document.getElementById('modal-precio').innerText;
+        const mensaje = `Hola! Quiero comprar el producto: ${nombreProd} (${precioProd}). ¿Cómo realizo el pago?`;
+        window.open(`https://wa.me/5492996256110?text=${encodeURIComponent(mensaje)}`, '_blank');
+    }
+
+    async function guardar() {
+        const n = document.getElementById('nombre').value;
+        const p = document.getElementById('precio').value;
+        const c = document.getElementById('categoria').value;
+        const d = document.getElementById('descripcion').value; 
+        const archivoInput = document.getElementById('archivo');
+        if(!n || !p || !archivoInput.files[0]) return alert("Faltan datos.");
+        const formData = new FormData();
+        formData.append('nombre', n);
+        formData.append('descripcion', d || "Sin descripción");
+        formData.append('precio', p);
+        formData.append('categoria', c);
+        formData.append('imagen', archivoInput.files[0]);
+        try {
+            const res = await fetch(`${API_URL}/`, { method: 'POST', body: formData });
+            if(res.ok) location.reload();
+        } catch (e) { alert("Error."); }
+    }
+
+    function verDetalle(nombre, precio, imagen, categoria, descripcion) {
+        document.getElementById('modal-nombre').innerText = nombre;
+        document.getElementById('modal-cat').innerText = categoria;
+        document.getElementById('modal-desc').innerText = descripcion;
+        document.getElementById('modal-img').src = imagen;
+        document.getElementById('modal-precio').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(precio);
+        
+        // Link del vendedor actualizado con tu número
+        document.getElementById('btn-whatsapp').href = `https://wa.me/5492996256110?text=${encodeURIComponent('Hola! Tengo una consulta sobre: ' + nombre)}`;
+        
+        document.getElementById('modal-detalle').classList.remove('hidden');
+    }
+
+    function cerrarModal() { document.getElementById('modal-detalle').classList.add('hidden'); }
+    function seleccionarCategoria(cat) { categoriaActual = cat; cargar(cat); }
+    function resetPagina() { categoriaActual = ''; cargar(); }
+    document.getElementById('buscador').addEventListener('input', (e) => cargar(categoriaActual, e.target.value));
+    window.onload = () => cargar();
+    </script>
+</body>
+</html>
