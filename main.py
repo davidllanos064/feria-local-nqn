@@ -149,3 +149,16 @@ async def eliminar_producto(p_id: int, db: Session = Depends(get_db)):
     db.delete(producto)
     db.commit()
     return {"status": "borrado correctamente"}
+
+# --- RUTA DE EMERGENCIA: RESETEAR BASE DE DATOS ---
+# Úsala solo una vez visitando: https://feria-local-nqn.onrender.com/reset-db-viki
+@app.get("/reset-db-viki")
+async def reset_db():
+    try:
+        # Borra todas las tablas existentes
+        models.Base.metadata.drop_all(bind=engine)
+        # Crea las tablas de nuevo con la estructura actualizada
+        models.Base.metadata.create_all(bind=engine)
+        return {"mensaje": "¡Éxito! La base de datos fue reseteada. Ya podés subir productos con fotos y CBU."}
+    except Exception as e:
+        return {"error": f"No se pudo resetear la base de datos: {str(e)}"}
