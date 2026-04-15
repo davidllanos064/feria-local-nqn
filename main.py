@@ -19,11 +19,10 @@ from database import engine, SessionLocal
 models.Base.metadata.create_all(bind=engine)
 
 # --- CONFIGURACIÓN DE CLOUDINARY ---
-# BUSCÁ ESTOS DATOS EN EL BOTÓN "VAYA A CLAVES API" DE TU CAPTURA
 cloudinary.config( 
   cloud_name = "drqup5lr8", 
-  api_key = "TU_API_KEY_AQUÍ", 
-  api_secret = "TU_API_SECRET_AQUÍ",
+  api_key = "121445653389898", 
+  api_secret = "PEGA_AQUÍ_TU_API_SECRET", # <--- PEGA AQUÍ EL CÓDIGO QUE COPIASTE
   secure = True
 )
 
