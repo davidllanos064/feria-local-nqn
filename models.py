@@ -9,5 +9,4 @@ class Producto(Base):
     descripcion = Column(String)
     precio = Column(Float)
     categoria = Column(String)
-    # Cambiamos 'imagen' por 'imagen_url' para que coincida con main.py y schemas.py
-    imagen_url = Column(String)
+    imagen_url = Column(String) # Sincronizado con Cloudinary
