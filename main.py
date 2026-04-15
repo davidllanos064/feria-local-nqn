@@ -18,12 +18,13 @@ from database import engine, SessionLocal
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
 models.Base.metadata.create_all(bind=engine)
 
-# --- CONFIGURACIÓN DE CLOUDINARY ---
+# --- CONFIGURACIÓN DE CLOUDINARY (SEGURA CON VARIABLES DE ENTORNO) ---
+# Ahora el código busca los valores en Render, no están escritos aquí.
 cloudinary.config( 
-  cloud_name = "drqup5lr8", 
-  api_key = "121445653389898", 
-  api_secret = "PEGA_AQUÍ_TU_API_SECRET", # <--- PEGA AQUÍ EL CÓDIGO QUE COPIASTE
-  secure = True
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
+    api_key = os.getenv("CLOUDINARY_API_KEY"), 
+    api_secret = os.getenv("CLOUDINARY_API_SECRET"),
+    secure = True
 )
 
 app = FastAPI()
