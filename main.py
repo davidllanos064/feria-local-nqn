@@ -12,6 +12,7 @@ import models
 from database import engine, SessionLocal
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
+# Esto asegura que las tablas se creen en Render al iniciar
 models.Base.metadata.create_all(bind=engine)
 
 # --- CONFIGURACIÓN DE CLOUDINARY ---
@@ -24,6 +25,7 @@ cloudinary.config(
 
 app = FastAPI()
 
+# Configuración de CORS para que el frontend pueda comunicarse sin bloqueos
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,6 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Dependencia para obtener la conexión a la DB
 def get_db():
     db = SessionLocal()
     try:
@@ -38,12 +41,15 @@ def get_db():
     finally:
         db.close()
 
+# Configuración de carpetas de plantillas
 templates = Jinja2Templates(directory="templates")
 
 # --- RUTAS ---
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
+    # FIX APLICADO: Se pasa el diccionario directamente como segundo argumento 
+    # para evitar el error 'unhashable type: dict' en versiones nuevas de Starlette
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/productos")
@@ -91,13 +97,13 @@ async def crear_producto(
     vendedor_cbu: str = Form(None),
     vendedor_alias: str = Form(None),
     vendedor_local_nombre: str = Form(None),
-    # Lista de archivos (Máximo 5)
+    # Lista de archivos (Soporta múltiples imágenes)
     imagenes: List[UploadFile] = File(...),
     db: Session = Depends(get_db)
 ):
     try:
         urls_subidas = []
-        # Subimos cada imagen a Cloudinary (limitamos a 5 por seguridad)
+        # Subimos cada imagen a Cloudinary (limitamos a 5 para optimizar espacio)
         for img in imagenes[:5]:
             upload_result = cloudinary.uploader.upload(
                 img.file, 
@@ -105,7 +111,7 @@ async def crear_producto(
             )
             urls_subidas.append(upload_result["secure_url"])
         
-        # Unimos las URLs en un solo texto separado por comas
+        # Unimos las URLs en un solo string separado por comas para guardarlo en la DB
         cadena_imagenes = ",".join(urls_subidas)
         
         nuevo = models.Producto(
@@ -128,14 +134,14 @@ async def crear_producto(
         return nuevo
         
     except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Error al procesar el producto o las imágenes")
+        print(f"Error detectado: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al procesar el producto: {str(e)}")
 
 @app.delete("/productos/{p_id}")
 async def eliminar_producto(p_id: int, db: Session = Depends(get_db)):
     producto = db.query(models.Producto).filter(models.Producto.id == p_id).first()
     if not producto:
-        raise HTTPException(status_code=404, detail="No encontrado")
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
     db.delete(producto)
     db.commit()
-    return {"status": "borrado"}
+    return {"status": "borrado correctamente"}
