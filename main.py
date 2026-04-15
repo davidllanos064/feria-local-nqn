@@ -48,9 +48,11 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # FIX APLICADO: Se pasa el diccionario directamente como segundo argumento 
-    # para evitar el error 'unhashable type: dict' en versiones nuevas de Starlette
-    return templates.TemplateResponse("index.html", {"request": request})
+    # CORRECCIÓN CLAVE: En las versiones nuevas se debe pasar el contexto 
+    # de esta forma para evitar el error 'unhashable type: dict'.
+    return templates.TemplateResponse(
+        request=request, name="index.html", context={"request": request}
+    )
 
 @app.get("/productos")
 async def listar_productos(
@@ -105,13 +107,15 @@ async def crear_producto(
         urls_subidas = []
         # Subimos cada imagen a Cloudinary (limitamos a 5 para optimizar espacio)
         for img in imagenes[:5]:
+            # Leer el contenido del archivo
+            file_content = await img.read()
             upload_result = cloudinary.uploader.upload(
-                img.file, 
+                file_content, 
                 folder="mercado_feria_nqn"
             )
             urls_subidas.append(upload_result["secure_url"])
         
-        # Unimos las URLs en un solo string separado por comas para guardarlo en la DB
+        # Unimos las URLs en un solo string separado por comas
         cadena_imagenes = ",".join(urls_subidas)
         
         nuevo = models.Producto(
