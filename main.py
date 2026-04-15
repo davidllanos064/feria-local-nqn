@@ -1,25 +1,20 @@
-import shutil
 import os
-import uuid
 import cloudinary
 import cloudinary.uploader
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
 import models
-import schemas 
 from database import engine, SessionLocal
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
 models.Base.metadata.create_all(bind=engine)
 
-# --- CONFIGURACIÓN DE CLOUDINARY (SEGURA CON VARIABLES DE ENTORNO) ---
-# Ahora el código busca los valores en Render, no están escritos aquí.
+# --- CONFIGURACIÓN DE CLOUDINARY ---
 cloudinary.config( 
     cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
     api_key = os.getenv("CLOUDINARY_API_KEY"), 
@@ -29,7 +24,6 @@ cloudinary.config(
 
 app = FastAPI()
 
-# 1. CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -44,22 +38,13 @@ def get_db():
     finally:
         db.close()
 
-# 2. RUTAS DE ARCHIVOS
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+templates = Jinja2Templates(directory="templates")
 
-# Ya no necesitamos crear la carpeta 'imagenes' localmente para los nuevos productos
-templates = Jinja2Templates(directory=TEMPLATES_DIR)
-
-# --- RUTAS DE LA APLICACIÓN ---
+# --- RUTAS ---
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse(
-        request=request, 
-        name="index.html", 
-        context={"request": request}
-    )
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/productos")
 async def listar_productos(
@@ -75,44 +60,68 @@ async def listar_productos(
     
     productos = query.all()
     
+    # Formateamos la respuesta para incluir la galería y datos del vendedor
     return [{
         "id": p.id,
         "nombre": p.nombre,
         "precio": p.precio,
         "descripcion": p.descripcion or "Sin descripción",
         "categoria": p.categoria or "General",
-        "imagen": p.imagen_url 
+        "imagenes": p.imagenes_urls.split(",") if p.imagenes_urls else [],
+        "vendedor": {
+            "nombre": p.vendedor_nombre,
+            "whatsapp": p.vendedor_whatsapp,
+            "ubicacion": p.vendedor_ubicacion,
+            "cbu": p.vendedor_cbu,
+            "alias": p.vendedor_alias,
+            "local": p.vendedor_local_nombre
+        }
     } for p in productos]
 
-# C. Guarda nuevos productos (MODIFICADO PARA CLOUDINARY)
 @app.post("/productos")
 async def crear_producto(
     nombre: str = Form(...),
     precio: float = Form(...),
     categoria: str = Form(...),
     descripcion: str = Form(None),
-    imagen: UploadFile = File(...),
+    # Campos del Vendedor
+    vendedor_nombre: str = Form(...),
+    vendedor_whatsapp: str = Form(...),
+    vendedor_ubicacion: str = Form(...),
+    vendedor_cbu: str = Form(None),
+    vendedor_alias: str = Form(None),
+    vendedor_local_nombre: str = Form(None),
+    # Lista de archivos (Máximo 5)
+    imagenes: List[UploadFile] = File(...),
     db: Session = Depends(get_db)
 ):
     try:
-        # 1. Subir la imagen a Cloudinary
-        # Usamos el archivo directamente desde la memoria
-        upload_result = cloudinary.uploader.upload(
-            imagen.file, 
-            folder="mercado_feria_nqn"
-        )
+        urls_subidas = []
+        # Subimos cada imagen a Cloudinary (limitamos a 5 por seguridad)
+        for img in imagenes[:5]:
+            upload_result = cloudinary.uploader.upload(
+                img.file, 
+                folder="mercado_feria_nqn"
+            )
+            urls_subidas.append(upload_result["secure_url"])
         
-        # 2. Obtener la URL segura que nos da la nube
-        url_permanente = upload_result["secure_url"]
+        # Unimos las URLs en un solo texto separado por comas
+        cadena_imagenes = ",".join(urls_subidas)
         
-        # 3. Guardar en la base de datos de Neuquén
         nuevo = models.Producto(
             nombre=nombre,
             precio=precio,
             categoria=categoria,
             descripcion=descripcion or "Sin descripción",
-            imagen_url=url_permanente  # <--- URL permanente de internet
+            imagenes_urls=cadena_imagenes,
+            vendedor_nombre=vendedor_nombre,
+            vendedor_whatsapp=vendedor_whatsapp,
+            vendedor_ubicacion=vendedor_ubicacion,
+            vendedor_cbu=vendedor_cbu,
+            vendedor_alias=vendedor_alias,
+            vendedor_local_nombre=vendedor_local_nombre
         )
+        
         db.add(nuevo)
         db.commit()
         db.refresh(nuevo)
@@ -120,7 +129,7 @@ async def crear_producto(
         
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Error al subir la foto a la nube")
+        raise HTTPException(status_code=500, detail="Error al procesar el producto o las imágenes")
 
 @app.delete("/productos/{p_id}")
 async def eliminar_producto(p_id: int, db: Session = Depends(get_db)):

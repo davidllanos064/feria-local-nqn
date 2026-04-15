@@ -36,6 +36,10 @@
             color: rgba(107, 114, 128, 0.6);
             font-weight: 700;
         }
+        /* Estilo para la galería */
+        .miniatura-activa { border-color: #4f46e5 !important; opacity: 1 !important; }
+        .miniatura { opacity: 0.6; transition: all 0.2s; }
+        .miniatura:hover { opacity: 1; }
     </style>
 </head>
 <body class="bg-[#f3f4f6] text-[#1f2937]">
@@ -85,16 +89,15 @@
     </div>
 
     <div class="container mx-auto px-4 max-w-6xl mt-10">
-        
         <div id="seccion-admin" class="bg-white p-8 rounded-2xl shadow-xl mb-12 border-2 border-indigo-50 hidden">
             <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-indigo-900">
                 <span class="bg-indigo-100 p-2 rounded-lg">🛠️</span>
-                Panel de Administración
+                Panel de Administración Multivendedor
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="md:col-span-2 space-y-2">
                     <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Nombre del Producto</label>
-                    <input id="nombre" type="text" placeholder="Ej: Artesanía en madera de Roble" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400 transition">
+                    <input id="nombre" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400 transition">
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Categoría</label>
@@ -112,18 +115,41 @@
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Precio ARS</label>
-                    <input id="precio" type="number" placeholder="$ 0.00" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400">
+                    <input id="precio" type="number" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400">
                 </div>
-                <div class="md:col-span-3 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Imagen del producto</label>
-                    <input id="archivo" type="file" accept="image/*" class="w-full border-2 border-dashed border-gray-200 p-2 rounded-xl text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+
+                <div class="md:col-span-2 space-y-2 border-t pt-4">
+                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">Nombre del Vendedor / Local</label>
+                    <input id="v_nombre" type="text" placeholder="Ej: Juan Pérez - Puesto 42" class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                </div>
+                <div class="md:col-span-1 space-y-2 border-t pt-4">
+                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">WhatsApp (Sin +)</label>
+                    <input id="v_whatsapp" type="text" placeholder="549299..." class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                </div>
+                <div class="md:col-span-1 space-y-2 border-t pt-4">
+                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">Ubicación</label>
+                    <input id="v_ubicacion" type="text" placeholder="Neuquén Capital" class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                </div>
+
+                <div class="md:col-span-2 space-y-2">
+                    <label class="text-xs font-black text-green-500 uppercase tracking-tighter">CBU / CVU</label>
+                    <input id="v_cbu" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                </div>
+                <div class="md:col-span-2 space-y-2">
+                    <label class="text-xs font-black text-green-500 uppercase tracking-tighter">Alias</label>
+                    <input id="v_alias" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                </div>
+
+                <div class="md:col-span-4 space-y-2">
+                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Fotos (Hasta 5 imágenes)</label>
+                    <input id="archivos" type="file" accept="image/*" multiple class="w-full border-2 border-dashed border-gray-200 p-4 rounded-xl text-sm">
                 </div>
                 <div class="md:col-span-4 space-y-2">
                     <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Descripción</label>
-                    <textarea id="descripcion" rows="3" placeholder="Contanos más detalles sobre lo que vendés..." class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400"></textarea>
+                    <textarea id="descripcion" rows="3" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400"></textarea>
                 </div>
                 <div class="md:col-span-4 flex justify-end pt-4">
-                    <button onclick="guardar()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-12 rounded-xl transition shadow-lg hover:shadow-indigo-200 transform hover:-translate-y-1">
+                    <button onclick="guardar()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-12 rounded-xl transition shadow-lg transform hover:-translate-y-1">
                         Publicar Producto
                     </button>
                 </div>
@@ -138,28 +164,54 @@
         <div id="lista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-24"></div>
     </div>
 
-    <div id="modal-detalle" class="fixed inset-0 bg-indigo-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl shadow-2xl relative flex flex-col">
-            <button onclick="cerrarModal()" class="absolute top-5 right-5 text-gray-400 hover:text-indigo-600 z-10 p-2 bg-gray-100 rounded-full transition">✕</button>
-            <div class="flex flex-col md:flex-row h-full">
-                <div class="md:w-1/2 p-8 flex items-center justify-center bg-gray-50 border-r border-gray-100">
-                    <img id="modal-img" src="" class="max-h-[450px] w-full object-contain drop-shadow-2xl">
+    <div id="modal-detalle" class="fixed inset-0 bg-indigo-900/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-5xl rounded-[32px] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
+            
+            <div class="md:w-1/2 bg-gray-50 p-6 flex flex-col justify-center items-center border-r relative">
+                <button onclick="cerrarModal()" class="absolute top-4 left-4 md:hidden text-gray-400 text-2xl">✕</button>
+                <img id="modal-img-principal" src="" class="max-h-[350px] object-contain drop-shadow-xl transition-all duration-300">
+                <div id="galeria-miniaturas" class="flex gap-2 mt-6 overflow-x-auto p-2 w-full justify-center">
+                    </div>
+            </div>
+
+            <div class="md:w-1/2 p-10 flex flex-col overflow-y-auto">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="modal-cat" class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest"></span>
+                    <button onclick="cerrarModal()" class="hidden md:block text-gray-400 hover:text-black text-2xl transition">✕</button>
                 </div>
-                <div class="md:w-1/2 p-10 flex flex-col">
-                    <span id="modal-cat" class="inline-block text-[10px] bg-indigo-100 text-indigo-700 font-black uppercase tracking-[0.2em] mb-4 px-3 py-1 rounded-full w-fit"></span>
-                    <h2 id="modal-nombre" class="text-3xl font-black text-gray-900 mb-2 leading-tight"></h2>
-                    <p id="modal-desc" class="text-gray-500 text-sm mb-8 leading-relaxed"></p>
-                    
-                    <div class="mt-auto space-y-3">
-                        <span id="modal-precio" class="block text-4xl font-light text-indigo-600 mb-6"></span>
+                
+                <h2 id="modal-nombre" class="text-4xl font-black text-gray-900 leading-tight mb-2"></h2>
+                <p id="modal-precio" class="text-3xl font-light text-indigo-600 mb-6"></p>
+                
+                <div class="bg-gray-50 p-4 rounded-2xl mb-6">
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-tighter">Descripción del producto</p>
+                    <p id="modal-desc" class="text-gray-600 leading-relaxed text-sm"></p>
+                </div>
+
+                <div class="border-t pt-6 space-y-4">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center font-bold text-white text-xl shadow-lg" id="vendedor-inicial">F</div>
+                        <div>
+                            <p class="text-sm font-black text-gray-900" id="vendedor-nombre"></p>
+                            <p class="text-xs text-gray-500" id="vendedor-ubicacion"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3">
+                        <a id="btn-whatsapp" target="_blank" class="flex items-center justify-center gap-3 bg-[#25D366] text-white py-4 rounded-2xl font-bold hover:scale-[1.02] transition shadow-lg shadow-green-200">
+                            <span class="text-xl">💬</span> Contactar Vendedor
+                        </a>
                         
-                        <button onclick="comprarDirecto()" class="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-xl">
-                            💳 Comprar Ahora
+                        <button onclick="mostrarDatosPago()" class="flex items-center justify-center gap-3 bg-black text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition">
+                            <span>🏦</span> Datos de Transferencia
                         </button>
 
-                        <a id="btn-whatsapp" target="_blank" class="flex items-center justify-center gap-3 border-2 border-[#128c7e] text-[#128c7e] py-3 rounded-2xl font-bold hover:bg-[#128c7e] hover:text-white transition">
-                            Consultar al Vendedor
-                        </a>
+                        <div id="info-pago" class="hidden bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl animate-pulse">
+                            <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">CBU/CVU:</p>
+                            <p id="pago-cbu" class="text-xs font-mono font-bold text-gray-800 mb-2"></p>
+                            <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">Alias:</p>
+                            <p id="pago-alias" class="text-xs font-mono font-bold text-gray-800"></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,76 +250,113 @@
                 }).format(p.precio);
 
                 const btnEliminar = isAdmin ? `
-                    <button onclick="eliminarProducto(event, '${p.id || p._id || p.nombre}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md z-10">
+                    <button onclick="eliminarProducto(event, '${p.id}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                     </button>` : '';
 
-                div.innerHTML += `
-                    <div onclick="verDetalle('${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, '${p.imagen}', '${p.categoria}', '${p.descripcion.replace(/'/g, "\\'")}')" 
-                         class="product-card bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-100 transition-all cursor-pointer group relative">
-                        ${btnEliminar}
-                        <div class="p-2 flex items-center justify-center bg-white relative">
-                            <span class="absolute top-3 left-3 text-[9px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-widest">${p.categoria}</span>
-                            <img src="${p.imagen}" class="product-img w-full" onerror="this.src='https://via.placeholder.com/300?text=Feria+Neuquen'">
-                        </div>
-                        <div class="p-5 flex flex-col flex-grow bg-white">
-                            <h3 class="text-sm font-semibold text-gray-500 truncate mb-1">${p.nombre}</h3>
-                            <span class="text-2xl font-bold text-gray-900 tracking-tight mb-3">${precioFormateado}</span>
-                        </div>
+                // Usamos la primera imagen de la lista para la portada
+                const portada = p.imagenes.length > 0 ? p.imagenes[0] : 'https://via.placeholder.com/300?text=Sin+Foto';
+
+                const divProducto = document.createElement('div');
+                divProducto.className = "product-card bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-100 transition-all cursor-pointer group relative";
+                divProducto.onclick = () => verDetalle(p);
+                divProducto.innerHTML = `
+                    ${btnEliminar}
+                    <div class="p-2 flex items-center justify-center bg-white relative">
+                        <span class="absolute top-3 left-3 text-[9px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-widest">${p.categoria}</span>
+                        <img src="${portada}" class="product-img w-full">
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow bg-white">
+                        <h3 class="text-sm font-semibold text-gray-500 truncate mb-1">${p.nombre}</h3>
+                        <span class="text-2xl font-bold text-gray-900 tracking-tight mb-3">${precioFormateado}</span>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">📍 ${p.vendedor.ubicacion}</p>
                     </div>`;
+                div.appendChild(divProducto);
             });
         } catch (e) { console.error("Error:", e); }
     }
 
     async function eliminarProducto(event, id) {
         event.stopPropagation();
-        if(!confirm("¿Estás seguro de que querés eliminar este producto?")) return;
+        if(!confirm("¿Estás seguro?")) return;
         try {
-            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if(res.ok) cargar(categoriaActual);
-        } catch (e) { alert("Error de conexión."); }
-    }
-
-    // LÓGICA DE COMPRA DIRECTA
-    function comprarDirecto() {
-        const nombreProd = document.getElementById('modal-nombre').innerText;
-        const precioProd = document.getElementById('modal-precio').innerText;
-        const mensaje = `Hola! Quiero comprar el producto: ${nombreProd} (${precioProd}). ¿Cómo realizo el pago?`;
-        window.open(`https://wa.me/5492996256110?text=${encodeURIComponent(mensaje)}`, '_blank');
-    }
-
-    async function guardar() {
-        const n = document.getElementById('nombre').value;
-        const p = document.getElementById('precio').value;
-        const c = document.getElementById('categoria').value;
-        const d = document.getElementById('descripcion').value; 
-        const archivoInput = document.getElementById('archivo');
-        if(!n || !p || !archivoInput.files[0]) return alert("Faltan datos.");
-        const formData = new FormData();
-        formData.append('nombre', n);
-        formData.append('descripcion', d || "Sin descripción");
-        formData.append('precio', p);
-        formData.append('categoria', c);
-        formData.append('imagen', archivoInput.files[0]);
-        try {
-            const res = await fetch(`${API_URL}/`, { method: 'POST', body: formData });
-            if(res.ok) location.reload();
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            cargar(categoriaActual);
         } catch (e) { alert("Error."); }
     }
 
-    function verDetalle(nombre, precio, imagen, categoria, descripcion) {
-        document.getElementById('modal-nombre').innerText = nombre;
-        document.getElementById('modal-cat').innerText = categoria;
-        document.getElementById('modal-desc').innerText = descripcion;
-        document.getElementById('modal-img').src = imagen;
-        document.getElementById('modal-precio').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(precio);
+    async function guardar() {
+        const archivos = document.getElementById('archivos').files;
+        if(archivos.length === 0) return alert("Subí al menos una foto.");
+
+        const formData = new FormData();
+        formData.append('nombre', document.getElementById('nombre').value);
+        formData.append('precio', document.getElementById('precio').value);
+        formData.append('categoria', document.getElementById('categoria').value);
+        formData.append('descripcion', document.getElementById('descripcion').value);
         
-        // Link del vendedor actualizado con tu número
-        document.getElementById('btn-whatsapp').href = `https://wa.me/5492996256110?text=${encodeURIComponent('Hola! Tengo una consulta sobre: ' + nombre)}`;
+        // Datos Vendedor
+        formData.append('vendedor_nombre', document.getElementById('v_nombre').value);
+        formData.append('vendedor_whatsapp', document.getElementById('v_whatsapp').value);
+        formData.append('vendedor_ubicacion', document.getElementById('v_ubicacion').value);
+        formData.append('vendedor_cbu', document.getElementById('v_cbu').value);
+        formData.append('vendedor_alias', document.getElementById('v_alias').value);
+
+        // Agregamos las múltiples fotos
+        for (let i = 0; i < archivos.length; i++) {
+            formData.append('imagenes', archivos[i]);
+        }
+
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: formData });
+            if(res.ok) location.reload();
+            else alert("Error al publicar.");
+        } catch (e) { console.error(e); }
+    }
+
+    function verDetalle(p) {
+        document.getElementById('modal-nombre').innerText = p.nombre;
+        document.getElementById('modal-cat').innerText = p.categoria;
+        document.getElementById('modal-desc').innerText = p.descripcion;
+        document.getElementById('modal-precio').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p.precio);
         
+        // Vendedor
+        document.getElementById('vendedor-nombre').innerText = p.vendedor.nombre;
+        document.getElementById('vendedor-ubicacion').innerText = `📍 ${p.vendedor.ubicacion}`;
+        document.getElementById('vendedor-inicial').innerText = p.vendedor.nombre.charAt(0).toUpperCase();
+        
+        // WhatsApp
+        const msg = `Hola! Me interesa tu producto "${p.nombre}" en la Feria Neuquén.`;
+        document.getElementById('btn-whatsapp').href = `https://wa.me/${p.vendedor.whatsapp}?text=${encodeURIComponent(msg)}`;
+
+        // Pago
+        document.getElementById('pago-cbu').innerText = p.vendedor.cbu || 'No disponible';
+        document.getElementById('pago-alias').innerText = p.vendedor.alias || 'No disponible';
+        document.getElementById('info-pago').classList.add('hidden');
+
+        // Galería
+        const principal = document.getElementById('modal-img-principal');
+        const galeria = document.getElementById('galeria-miniaturas');
+        principal.src = p.imagenes[0];
+        
+        galeria.innerHTML = p.imagenes.map((img, i) => `
+            <img src="${img}" onclick="cambiarFoto('${img}', this)" 
+                 class="miniatura w-12 h-12 object-cover rounded-lg cursor-pointer border-2 border-transparent ${i===0?'miniatura-activa':''}">
+        `).join('');
+
         document.getElementById('modal-detalle').classList.remove('hidden');
+    }
+
+    function cambiarFoto(src, el) {
+        document.getElementById('modal-img-principal').src = src;
+        document.querySelectorAll('.miniatura').forEach(m => m.classList.remove('miniatura-activa'));
+        el.classList.add('miniatura-activa');
+    }
+
+    function mostrarDatosPago() {
+        document.getElementById('info-pago').classList.toggle('hidden');
     }
 
     function cerrarModal() { document.getElementById('modal-detalle').classList.add('hidden'); }
