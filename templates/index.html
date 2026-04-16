@@ -12,7 +12,7 @@
             --morado-oscuro: #3730a3;
             --amarillo-opaco: #eab308;
         }
-        body { font-family: 'Proxima Nova', sans-serif; }
+        body { font-family: 'Proxima Nova', sans-serif; scroll-behavior: smooth; }
         .product-card:hover { 
             box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); 
             transform: translateY(-4px);
@@ -36,15 +36,24 @@
             color: rgba(107, 114, 128, 0.6);
             font-weight: 700;
         }
-        /* Estilo para la galería */
         .miniatura-activa { border-color: #4f46e5 !important; opacity: 1 !important; }
         .miniatura { opacity: 0.6; transition: all 0.2s; }
         .miniatura:hover { opacity: 1; }
+
+        .btn-adopcion {
+            background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
+            animation: pulse-pink 2s infinite;
+        }
+        @keyframes pulse-pink {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(219, 39, 119, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(219, 39, 119, 0); }
+        }
     </style>
 </head>
 <body class="bg-[#f3f4f6] text-[#1f2937]">
 
-    <button onclick="loginAdmin()" class="admin-trigger group flex items-center gap-2 bg-white/80 backdrop-blur-sm p-2 px-3 rounded-full shadow-md hover:bg-white transition-all border border-gray-200" title="Panel de Control">
+    <button onclick="reproducirSonido('click'); loginAdmin()" class="admin-trigger group flex items-center gap-2 bg-white/80 backdrop-blur-sm p-2 px-3 rounded-full shadow-md hover:bg-white transition-all border border-gray-200" title="Panel de Control">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -54,7 +63,7 @@
     <nav class="bg-indigo-700 pt-6 pb-2 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 max-w-6xl">
             <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
-                <div class="flex-shrink-0 cursor-pointer text-center md:text-left" onclick="resetPagina()">
+                <div class="flex-shrink-0 cursor-pointer text-center md:text-left" onclick="reproducirSonido('click'); resetPagina()">
                     <h1 class="text-white text-3xl font-extrabold tracking-tighter leading-tight">
                         Mercado <br>
                         <span class="text-yellow-400 text-xs font-bold tracking-[0.3em] uppercase opacity-90">Feria Neuquén</span>
@@ -68,89 +77,73 @@
             </div>
             
             <div class="flex justify-start md:justify-center gap-4 overflow-x-auto hide-scroll pb-2">
-                <button onclick="resetPagina()" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Todo</button>
-                <button onclick="seleccionarCategoria('Tecnología')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Tech</button>
-                <button onclick="seleccionarCategoria('Vehículos')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Autos</button>
-                <button onclick="seleccionarCategoria('Hogar')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Hogar</button>
-                <button onclick="seleccionarCategoria('Moda')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Moda</button>
-                <button onclick="seleccionarCategoria('Herramientas')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Herramientas</button>
-                <button onclick="seleccionarCategoria('Arte')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Arte</button>
-                <button onclick="seleccionarCategoria('Mascotas')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Mascotas</button>
-                <button onclick="seleccionarCategoria('Deporte')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Deporte</button>
-                <button onclick="seleccionarCategoria('Libros')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Libros</button>
+                <button onclick="reproducirSonido('click'); resetPagina()" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Todo</button>
+                <button onclick="reproducirSonido('click'); seleccionarCategoria('Tecnología')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Tech</button>
+                <button onclick="reproducirSonido('click'); seleccionarCategoria('Hogar')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Hogar</button>
+                <button onclick="reproducirSonido('click'); seleccionarCategoria('Moda')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Moda</button>
+                <button onclick="reproducirSonido('click'); seleccionarCategoria('Mascotas')" class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider hover:text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition-all">Mascotas</button>
+                <button onclick="reproducirSonido('click'); seleccionarCategoria('Adopción')" class="text-[11px] text-white font-black uppercase tracking-wider px-4 py-1 rounded-full btn-adopcion transition-all shadow-md">🐾 Adopción</button>
             </div>
         </div>
     </nav>
 
     <div class="container mx-auto px-4 max-w-6xl mt-6">
-        <a href="https://wa.me/5492996256110?text=Hola! Me interesa poner mi puesto virtual en la Feria Neuquén." target="_blank" class="group block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black text-center py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg transition-all transform hover:scale-[1.01]">
+        <button onclick="abrirRegistro()" class="group block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black text-center py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg transition-all transform hover:scale-[1.01]">
             🚀 ¿Querés vender tus productos acá? Unite a la Feria hoy mismo
-        </a>
+        </button>
     </div>
 
     <div class="container mx-auto px-4 max-w-6xl mt-10">
         <div id="seccion-admin" class="bg-white p-8 rounded-2xl shadow-xl mb-12 border-2 border-indigo-50 hidden">
             <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-indigo-900">
-                <span class="bg-indigo-100 p-2 rounded-lg">🛠️</span>
-                Panel de Administración Multivendedor
+                <span class="bg-indigo-100 p-2 rounded-lg">🛠️</span> Panel de Administración
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="md:col-span-2 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Nombre del Producto</label>
+                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Nombre del Producto / Mascota</label>
                     <input id="nombre" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400 transition">
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Categoría</label>
                     <select id="categoria" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400 bg-white">
                         <option value="Tecnología">Tecnología</option>
-                        <option value="Vehículos">Vehículos</option>
                         <option value="Hogar">Hogar</option>
                         <option value="Moda">Moda</option>
-                        <option value="Herramientas">Herramientas</option>
-                        <option value="Arte">Arte</option>
                         <option value="Mascotas">Mascotas</option>
-                        <option value="Deporte">Deporte</option>
-                        <option value="Libros">Libros</option>
+                        <option value="Adopción">🐾 Adopción Responsable</option>
+                        <option value="Otros">Otros</option>
                     </select>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Precio ARS</label>
+                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Precio (0 si es Adopción)</label>
                     <input id="precio" type="number" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400">
                 </div>
 
                 <div class="md:col-span-2 space-y-2 border-t pt-4">
-                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">Nombre del Vendedor / Local</label>
-                    <input id="v_nombre" type="text" placeholder="Ej: Juan Pérez - Puesto 42" class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">Nombre del Vendedor / Refugio</label>
+                    <input id="v_nombre" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl">
                 </div>
                 <div class="md:col-span-1 space-y-2 border-t pt-4">
-                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">WhatsApp (Sin +)</label>
+                    <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">WhatsApp</label>
                     <input id="v_whatsapp" type="text" placeholder="549299..." class="w-full border-2 border-gray-100 p-3 rounded-xl">
                 </div>
                 <div class="md:col-span-1 space-y-2 border-t pt-4">
                     <label class="text-xs font-black text-orange-400 uppercase tracking-tighter">Ubicación</label>
-                    <input id="v_ubicacion" type="text" placeholder="Neuquén Capital" class="w-full border-2 border-gray-100 p-3 rounded-xl">
-                </div>
-
-                <div class="md:col-span-2 space-y-2">
-                    <label class="text-xs font-black text-green-500 uppercase tracking-tighter">CBU / CVU</label>
-                    <input id="v_cbu" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl">
-                </div>
-                <div class="md:col-span-2 space-y-2">
-                    <label class="text-xs font-black text-green-500 uppercase tracking-tighter">Alias</label>
-                    <input id="v_alias" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl">
+                    <input id="v_ubicacion" type="text" placeholder="Neuquén" class="w-full border-2 border-gray-100 p-3 rounded-xl">
                 </div>
 
                 <div class="md:col-span-4 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Fotos (Hasta 5 imágenes)</label>
+                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Fotos (Según tu plan)</label>
                     <input id="archivos" type="file" accept="image/*" multiple class="w-full border-2 border-dashed border-gray-200 p-4 rounded-xl text-sm">
+                    <p class="text-[9px] text-gray-400">Básico: 3 fotos | Premium: 10 fotos</p>
                 </div>
                 <div class="md:col-span-4 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Descripción</label>
+                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Descripción / Historia</label>
                     <textarea id="descripcion" rows="3" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400"></textarea>
                 </div>
                 <div class="md:col-span-4 flex justify-end pt-4">
                     <button onclick="guardar()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-12 rounded-xl transition shadow-lg transform hover:-translate-y-1">
-                        Publicar Producto
+                        Publicar Ahora
                     </button>
                 </div>
             </div>
@@ -158,7 +151,7 @@
 
         <div class="mb-10">
             <h2 id="titulo-seccion" class="text-5xl titulo-remarcado">Productos</h2>
-            <p class="text-2xl subtitulo-opaco mt-[-5px]">más recientes</p>
+            <p class="text-2xl subtitulo-opaco mt-[-5px]">y oportunidades</p>
         </div>
         
         <div id="lista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-24"></div>
@@ -166,12 +159,10 @@
 
     <div id="modal-detalle" class="fixed inset-0 bg-indigo-900/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-5xl rounded-[32px] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
-            
             <div class="md:w-1/2 bg-gray-50 p-6 flex flex-col justify-center items-center border-r relative">
                 <button onclick="cerrarModal()" class="absolute top-4 left-4 md:hidden text-gray-400 text-2xl">✕</button>
                 <img id="modal-img-principal" src="" class="max-h-[350px] object-contain drop-shadow-xl transition-all duration-300">
-                <div id="galeria-miniaturas" class="flex gap-2 mt-6 overflow-x-auto p-2 w-full justify-center">
-                    </div>
+                <div id="galeria-miniaturas" class="flex gap-2 mt-6 overflow-x-auto p-2 w-full justify-center"></div>
             </div>
 
             <div class="md:w-1/2 p-10 flex flex-col overflow-y-auto">
@@ -184,7 +175,7 @@
                 <p id="modal-precio" class="text-3xl font-light text-indigo-600 mb-6"></p>
                 
                 <div class="bg-gray-50 p-4 rounded-2xl mb-6">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-tighter">Descripción del producto</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-tighter">Información</p>
                     <p id="modal-desc" class="text-gray-600 leading-relaxed text-sm"></p>
                 </div>
 
@@ -192,37 +183,146 @@
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center font-bold text-white text-xl shadow-lg" id="vendedor-inicial">F</div>
                         <div>
-                            <p class="text-sm font-black text-gray-900" id="vendedor-nombre"></p>
+                            <div class="flex items-center gap-1">
+                                <p class="text-sm font-black text-gray-900" id="vendedor-nombre"></p>
+                                <div id="vendedor-badge-modal"></div>
+                            </div>
                             <p class="text-xs text-gray-500" id="vendedor-ubicacion"></p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-3">
-                        <a id="btn-whatsapp" target="_blank" class="flex items-center justify-center gap-3 bg-[#25D366] text-white py-4 rounded-2xl font-bold hover:scale-[1.02] transition shadow-lg shadow-green-200">
-                            <span class="text-xl">💬</span> Contactar Vendedor
-                        </a>
-                        
-                        <button onclick="mostrarDatosPago()" class="flex items-center justify-center gap-3 bg-black text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition">
-                            <span>🏦</span> Datos de Transferencia
-                        </button>
-
-                        <div id="info-pago" class="hidden bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl animate-pulse">
-                            <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">CBU/CVU:</p>
-                            <p id="pago-cbu" class="text-xs font-mono font-bold text-gray-800 mb-2"></p>
-                            <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">Alias:</p>
-                            <p id="pago-alias" class="text-xs font-mono font-bold text-gray-800"></p>
-                        </div>
-                    </div>
+                    <a id="btn-whatsapp" target="_blank" onclick="reproducirSonido('click')" class="flex items-center justify-center gap-3 bg-[#25D366] text-white py-4 rounded-2xl font-bold hover:scale-[1.02] transition shadow-lg shadow-green-200">
+                        <span id="txt-boton-contacto">💬 Contactar</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="modal-registro" class="fixed inset-0 bg-indigo-950/90 backdrop-blur-xl z-[150] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+            <div class="p-8 overflow-y-auto">
+                <div class="text-center mb-8">
+                    <span class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em]">Membresías Feria</span>
+                    <h2 class="text-3xl font-black text-gray-900 mt-2">Impulsá tu Negocio</h2>
+                    <p class="text-gray-500 text-sm mt-2">Elegí el plan para tu volumen de ventas.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase ml-2">Nombre del Negocio</label>
+                        <input id="reg-nombre" type="text" placeholder="Ej: Artesanías del Valle" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-2xl focus:border-indigo-500 outline-none transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase ml-2">WhatsApp de Ventas</label>
+                        <input id="reg-whatsapp" type="text" placeholder="549299..." class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-2xl focus:border-indigo-500 outline-none transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border-2 border-gray-100 p-8 rounded-[32px] hover:border-indigo-200 transition bg-gray-50/50 flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-700">Plan Básico</h3>
+                        <div class="my-6">
+                            <span class="text-4xl font-black text-gray-900">$15.000</span>
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">/ mes</span>
+                        </div>
+                        <ul class="text-xs text-gray-500 space-y-4 mb-8 flex-grow">
+                            <li class="flex items-center gap-2">✅ Hasta 10 publicaciones activas</li>
+                            <li class="flex items-center gap-2">✅ 3 fotos por cada producto</li>
+                            <li class="flex items-center gap-2">✅ Link directo a tu WhatsApp</li>
+                            <li class="flex items-center gap-2 text-gray-300">❌ Badge de Verificado</li>
+                        </ul>
+                        <button onclick="seleccionarPlan('basico', 15000)" class="w-full bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-black py-4 rounded-2xl transition-all">
+                            Elegir Plan Básico
+                        </button>
+                    </div>
+
+                    <div class="border-4 border-indigo-500 p-8 rounded-[32px] bg-indigo-50 relative overflow-hidden shadow-xl flex flex-col transform md:scale-105">
+                        <div class="absolute top-4 right-[-35px] bg-indigo-500 text-white text-[10px] font-black px-10 py-1 rotate-45 uppercase">Destacado</div>
+                        <h3 class="text-xl font-bold text-indigo-900">Plan Premium</h3>
+                        <div class="my-6">
+                            <span class="text-4xl font-black text-indigo-600">$50.000</span>
+                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">/ mes</span>
+                        </div>
+                        <ul class="text-xs text-indigo-700 space-y-4 mb-8 flex-grow font-medium">
+                            <li class="flex items-center gap-2">✅ Publicaciones Ilimitadas</li>
+                            <li class="flex items-center gap-2">✅ Hasta 10 fotos por producto</li>
+                            <li class="flex items-center gap-2 text-yellow-600">✅ Badge de Vendedor Verificado 👑</li>
+                            <li class="flex items-center gap-2">✅ Posicionamiento prioritario</li>
+                        </ul>
+                        <button onclick="seleccionarPlan('premium', 50000)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.02]">
+                            Activar Plan Premium
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="cerrarRegistro()" class="p-4 text-gray-400 hover:text-gray-600 text-xs font-bold uppercase tracking-widest bg-gray-50 border-t">Cerrar</button>
+        </div>
+    </div>
+
+    <a href="https://wa.me/5492996256110?text=Hola! Necesito ayuda con la plataforma." target="_blank" class="fixed bottom-6 right-6 z-50 bg-white p-3 rounded-full shadow-2xl border border-gray-100 hover:scale-110 transition-transform group">
+        <div class="absolute -top-10 right-0 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">¿Necesitás ayuda?</div>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="w-10 h-10" alt="Ayuda">
+    </a>
+
+    <audio id="snd-click" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+
     <script>
     const API_URL = '/productos'; 
     let categoriaActual = '';
     let isAdmin = false;
+    let planElegido = { tipo: 'basico', precio: 0 };
 
+    // --- FUNCIONES DE SONIDO ---
+    function reproducirSonido(tipo) {
+        const audio = document.getElementById(tipo === 'click' ? 'snd-click' : 'snd-success');
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio bloqueado"));
+    }
+
+    // --- FUNCIONES DE REGISTRO Y PLANES ---
+    function abrirRegistro() {
+        reproducirSonido('click');
+        document.getElementById('modal-registro').classList.remove('hidden');
+    }
+
+    function cerrarRegistro() {
+        document.getElementById('modal-registro').classList.add('hidden');
+    }
+
+    function seleccionarPlan(tipo, precio) {
+        planElegido.tipo = tipo;
+        planElegido.precio = precio;
+        
+        const nombre = document.getElementById('reg-nombre').value;
+        const whatsapp = document.getElementById('reg-whatsapp').value;
+
+        if(!nombre || !whatsapp) {
+            alert("Por favor, ingresá el nombre de tu negocio y tu WhatsApp antes de elegir el plan.");
+            return;
+        }
+
+        procesarPago(nombre, whatsapp);
+    }
+
+    async function procesarPago(nombre, whatsapp) {
+        reproducirSonido('success');
+        
+        const precioFormateado = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(planElegido.precio);
+        const mensaje = `¡Hola! Quiero activar mi puesto en la Feria.\n\n` +
+                       `🏪 Negocio: ${nombre}\n` +
+                       `📱 WhatsApp: ${whatsapp}\n` +
+                       `💎 Plan: ${planElegido.tipo.toUpperCase()}\n` +
+                       `💰 Valor: ${precioFormateado}`;
+        
+        const urlSoporte = `https://wa.me/5492996256110?text=${encodeURIComponent(mensaje)}`;
+        
+        alert(`¡Excelente elección! Te redirigiremos a WhatsApp para confirmar el pago del plan ${planElegido.tipo.toUpperCase()} y activar tu cuenta.`);
+        window.location.href = urlSoporte;
+    }
+
+    // --- LÓGICA DE ADMIN ---
     function loginAdmin() {
         const pass = prompt("Acceso Restringido. Ingrese la clave:");
         if (pass === 'neuquen2026') {
@@ -234,6 +334,7 @@
         }
     }
 
+    // --- CARGAR PRODUCTOS ---
     async function cargar(cat = '', busqueda = '') {
         try {
             let url = `${API_URL}?`;
@@ -245,32 +346,36 @@
             div.innerHTML = ''; 
             
             productos.forEach(p => {
-                const precioFormateado = new Intl.NumberFormat('es-AR', {
+                const esAdopcion = p.categoria === 'Adopción';
+                const esPremium = p.vendedor.tipo_plan === 'premium'; // Propiedad del backend
+
+                const precioTexto = esAdopcion ? '¡Adopción Gratis!' : new Intl.NumberFormat('es-AR', {
                     style: 'currency', currency: 'ARS', minimumFractionDigits: 0
                 }).format(p.precio);
 
-                const btnEliminar = isAdmin ? `
-                    <button onclick="eliminarProducto(event, '${p.id}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>` : '';
-
-                // Usamos la primera imagen de la lista para la portada
-                const portada = p.imagenes.length > 0 ? p.imagenes[0] : 'https://via.placeholder.com/300?text=Sin+Foto';
-
                 const divProducto = document.createElement('div');
                 divProducto.className = "product-card bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-100 transition-all cursor-pointer group relative";
-                divProducto.onclick = () => verDetalle(p);
+                divProducto.onclick = () => { reproducirSonido('click'); verDetalle(p); };
+                
+                const portada = p.imagenes.length > 0 ? p.imagenes[0] : 'https://via.placeholder.com/300?text=Sin+Foto';
+
+                // Badge de Corona para Premium
+                const badgePremium = esPremium ? `
+                    <div class="absolute top-3 right-3 bg-yellow-400 text-yellow-900 p-1 rounded-full shadow-lg border border-white animate-pulse" title="Vendedor Destacado">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                    </div>` : '';
+
                 divProducto.innerHTML = `
-                    ${btnEliminar}
                     <div class="p-2 flex items-center justify-center bg-white relative">
-                        <span class="absolute top-3 left-3 text-[9px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-widest">${p.categoria}</span>
-                        <img src="${portada}" class="product-img w-full">
+                        ${badgePremium}
+                        <span class="absolute top-3 left-3 text-[9px] font-black ${esAdopcion ? 'bg-pink-100 text-pink-600' : 'bg-indigo-50 text-indigo-600'} px-2 py-1 rounded-md uppercase tracking-widest">${p.categoria}</span>
+                        <img src="${portada}" class="product-img w-full ${esAdopcion ? 'rounded-xl' : ''}">
                     </div>
                     <div class="p-5 flex flex-col flex-grow bg-white">
                         <h3 class="text-sm font-semibold text-gray-500 truncate mb-1">${p.nombre}</h3>
-                        <span class="text-2xl font-bold text-gray-900 tracking-tight mb-3">${precioFormateado}</span>
+                        <span class="${esAdopcion ? 'text-pink-600' : 'text-gray-900'} text-xl font-bold tracking-tight mb-3">${precioTexto}</span>
                         <p class="text-[10px] text-gray-400 uppercase font-bold">📍 ${p.vendedor.ubicacion}</p>
                     </div>`;
                 div.appendChild(divProducto);
@@ -278,65 +383,57 @@
         } catch (e) { console.error("Error:", e); }
     }
 
-    async function eliminarProducto(event, id) {
-        event.stopPropagation();
-        if(!confirm("¿Estás seguro?")) return;
-        try {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            cargar(categoriaActual);
-        } catch (e) { alert("Error."); }
-    }
-
+    // --- GUARDAR PRODUCTO ---
     async function guardar() {
         const archivos = document.getElementById('archivos').files;
         if(archivos.length === 0) return alert("Subí al menos una foto.");
 
         const formData = new FormData();
         formData.append('nombre', document.getElementById('nombre').value);
-        formData.append('precio', document.getElementById('precio').value);
+        formData.append('precio', document.getElementById('precio').value || 0);
         formData.append('categoria', document.getElementById('categoria').value);
         formData.append('descripcion', document.getElementById('descripcion').value);
-        
-        // Datos Vendedor
         formData.append('vendedor_nombre', document.getElementById('v_nombre').value);
         formData.append('vendedor_whatsapp', document.getElementById('v_whatsapp').value);
         formData.append('vendedor_ubicacion', document.getElementById('v_ubicacion').value);
-        formData.append('vendedor_cbu', document.getElementById('v_cbu').value);
-        formData.append('vendedor_alias', document.getElementById('v_alias').value);
 
-        // Agregamos las múltiples fotos
         for (let i = 0; i < archivos.length; i++) {
             formData.append('imagenes', archivos[i]);
         }
 
         try {
             const res = await fetch(API_URL, { method: 'POST', body: formData });
-            if(res.ok) location.reload();
-            else alert("Error al publicar.");
+            if(res.ok) {
+                reproducirSonido('success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                const errorData = await res.json();
+                alert(errorData.detail || "Error al publicar. Revisa los límites de tu plan.");
+            }
         } catch (e) { console.error(e); }
     }
 
+    // --- DETALLE MODAL ---
     function verDetalle(p) {
+        const esAdopcion = p.categoria === 'Adopción';
+        const esPremium = p.vendedor.tipo_plan === 'premium';
+
         document.getElementById('modal-nombre').innerText = p.nombre;
         document.getElementById('modal-cat').innerText = p.categoria;
         document.getElementById('modal-desc').innerText = p.descripcion;
-        document.getElementById('modal-precio').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p.precio);
+        document.getElementById('modal-precio').innerText = esAdopcion ? '🐾 Adopción Responsable' : new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p.precio);
         
-        // Vendedor
         document.getElementById('vendedor-nombre').innerText = p.vendedor.nombre;
         document.getElementById('vendedor-ubicacion').innerText = `📍 ${p.vendedor.ubicacion}`;
-        document.getElementById('vendedor-inicial').innerText = p.vendedor.nombre.charAt(0).toUpperCase();
-        
-        // WhatsApp
-        const msg = `Hola! Me interesa tu producto "${p.nombre}" en la Feria Neuquén.`;
+        document.getElementById('txt-boton-contacto').innerText = esAdopcion ? '💬 Quiero Adoptar' : '💬 Contactar Vendedor';
+
+        // Badge en el modal
+        const badgeDiv = document.getElementById('vendedor-badge-modal');
+        badgeDiv.innerHTML = esPremium ? '<span class="text-yellow-500" title="Verificado">👑</span>' : '';
+
+        const msg = esAdopcion ? `Hola! Me interesa adoptar a "${p.nombre}" que vi en la Feria.` : `Hola! Me interesa tu producto "${p.nombre}" en la Feria.`;
         document.getElementById('btn-whatsapp').href = `https://wa.me/${p.vendedor.whatsapp}?text=${encodeURIComponent(msg)}`;
 
-        // Pago
-        document.getElementById('pago-cbu').innerText = p.vendedor.cbu || 'No disponible';
-        document.getElementById('pago-alias').innerText = p.vendedor.alias || 'No disponible';
-        document.getElementById('info-pago').classList.add('hidden');
-
-        // Galería
         const principal = document.getElementById('modal-img-principal');
         const galeria = document.getElementById('galeria-miniaturas');
         principal.src = p.imagenes[0];
@@ -350,13 +447,10 @@
     }
 
     function cambiarFoto(src, el) {
+        reproducirSonido('click');
         document.getElementById('modal-img-principal').src = src;
         document.querySelectorAll('.miniatura').forEach(m => m.classList.remove('miniatura-activa'));
         el.classList.add('miniatura-activa');
-    }
-
-    function mostrarDatosPago() {
-        document.getElementById('info-pago').classList.toggle('hidden');
     }
 
     function cerrarModal() { document.getElementById('modal-detalle').classList.add('hidden'); }

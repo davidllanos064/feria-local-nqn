@@ -1,25 +1,48 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, DateTime
+from sqlalchemy.orm import relationship
 from database import Base
+from datetime import datetime
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String)
+    email = Column(String, unique=True, index=True)
+    password_hashed = Column(String)
+    tipo = Column(String) # "comprador" o "vendedor"
+    whatsapp = Column(String)
+    
+    # --- SISTEMA DE PLANES Y PAGOS ---
+    plan = Column(String, default="Basico") # "Basico" o "Premium"
+    esta_bloqueado = Column(Boolean, default=False)
+    # PILAR 3: Fecha de vencimiento para automatizar bloqueos
+    plan_vencimiento = Column(DateTime, nullable=True)
+    
+    # Datos de cobro del Vendedor
+    vendedor_cbu = Column(String, nullable=True)
+    vendedor_alias = Column(String, nullable=True)
+
+    # Relaciones
+    productos = relationship("Producto", back_populates="vendedor")
+    publicidades = relationship("Publicidad", back_populates="vendedor")
 
 class Producto(Base):
     __tablename__ = "productos"
-
-    # --- DATOS DEL PRODUCTO ---
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
     descripcion = Column(String)
     precio = Column(Float)
     categoria = Column(String)
+    imagenes_urls = Column(String) # URLs separadas por comas
     
-    # Aquí guardaremos las 5 URLs de Cloudinary separadas por comas
-    imagenes_urls = Column(String) 
+    vendedor_id = Column(Integer, ForeignKey("usuarios.id"))
+    vendedor = relationship("Usuario", back_populates="productos")
 
-    # --- DATOS DEL VENDEDOR (NUEVO) ---
-    vendedor_nombre = Column(String)
-    vendedor_whatsapp = Column(String)
-    vendedor_ubicacion = Column(String)
+class Publicidad(Base):
+    __tablename__ = "publicidades"
+    id = Column(Integer, primary_key=True, index=True)
+    imagen_url = Column(String)
+    estado = Column(String, default="pendiente") # "pendiente", "aprobada", "rechazada"
     
-    # Datos para el sistema de depósito/transferencia
-    vendedor_cbu = Column(String, nullable=True)
-    vendedor_alias = Column(String, nullable=True)
-    vendedor_local_nombre = Column(String, nullable=True) # Nombre del local o puesto
+    vendedor_id = Column(Integer, ForeignKey("usuarios.id"))
+    vendedor = relationship("Usuario", back_populates="publicidades")
