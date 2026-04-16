@@ -125,142 +125,168 @@
         </div>
     </main>
 
-    <script>
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuario) { window.location.href = "/"; }
-        
+   <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    
+    // Si no hay usuario, redirigir al inicio inmediatamente
+    if (!usuario) { 
+        window.location.href = "/"; 
+    } else {
         document.getElementById('user-name').innerText = usuario.nombre;
         document.getElementById('user-display').innerText = usuario.email;
+    }
 
-        // --- Cargar datos previos de pago ---
-        async function cargarDatosVendedor() {
-            try {
-                // Asumimos que hay un endpoint para obtener los datos del vendedor logueado
-                const res = await fetch(`/vendedor/${usuario.id}`);
-                if(res.ok) {
-                    const data = await res.json();
-                    document.getElementById('v-cbu').value = data.cbu || '';
-                    document.getElementById('v-alias').value = data.alias || '';
-                }
-            } catch(e) { console.error("Error cargando datos de vendedor"); }
+    // --- Cargar datos previos de pago ---
+    async function cargarDatosVendedor() {
+        try {
+            const res = await fetch(`/vendedor/${usuario.id}`);
+            if(res.ok) {
+                const data = await res.json();
+                // Usamos || '' para evitar que aparezca "undefined" en los campos
+                document.getElementById('v-cbu').value = data.cbu || '';
+                document.getElementById('v-alias').value = data.alias || '';
+            }
+        } catch(e) { 
+            console.error("Error cargando datos de vendedor:", e); 
+        }
+    }
+
+    // --- Previsualización de imágenes ---
+    document.getElementById('p-fotos').addEventListener('change', function(e) {
+        const container = document.getElementById('previsualizacion');
+        container.innerHTML = '';
+        
+        // Limitar a 5 fotos
+        const files = Array.from(this.files).slice(0, 5);
+        
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.className = "w-16 h-16 object-cover rounded-lg border-2 border-indigo-200 shadow-sm";
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    async function guardarPagos() {
+        const cbu = document.getElementById('v-cbu').value.trim();
+        const alias = document.getElementById('v-alias').value.trim();
+        
+        if(!cbu || !alias) {
+            alert("Por favor completa CBU y Alias para recibir pagos.");
+            return;
         }
 
-        // --- Previsualización de imágenes ---
-        document.getElementById('p-fotos').addEventListener('change', function(e) {
-            const container = document.getElementById('previsualizacion');
-            container.innerHTML = '';
-            Array.from(this.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.className = "w-16 h-16 object-cover rounded-lg border-2 border-indigo-200";
-                    container.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
+        // Validación básica de CBU Argentino
+        if(cbu.length !== 22 && cbu.length !== 0) {
+            alert("El CBU debe tener 22 dígitos.");
+            return;
+        }
 
-        async function guardarPagos() {
-            const cbu = document.getElementById('v-cbu').value;
-            const alias = document.getElementById('v-alias').value;
-            
-            if(!cbu || !alias) {
-                alert("Por favor completa ambos campos para poder recibir pagos.");
-                return;
-            }
+        const formData = new FormData();
+        formData.append('vendedor_id', parseInt(usuario.id));
+        formData.append('cbu', cbu);
+        formData.append('alias', alias);
 
-            const formData = new FormData();
-            formData.append('vendedor_id', parseInt(usuario.id));
-            formData.append('cbu', cbu);
-            formData.append('alias', alias);
-
+        try {
             const res = await fetch('/vendedor/configurar-pagos', { method: 'POST', body: formData });
             if(res.ok) {
-                alert("¡Datos de cobro guardados correctamente!");
+                alert("✅ ¡Datos de cobro guardados!");
             }
+        } catch(e) {
+            alert("Error al conectar con el servidor.");
+        }
+    }
+
+    async function subirProducto() {
+        const btn = document.getElementById('btn-subir');
+        const nombre = document.getElementById('p-nombre').value.trim();
+        const precio = document.getElementById('p-precio').value;
+        const categoria = document.getElementById('p-categoria').value;
+        const fotos = document.getElementById('p-fotos').files;
+
+        if(!nombre || !precio || !categoria || fotos.length === 0) {
+            alert("Faltan datos: Nombre, Precio, Categoría y al menos una foto son obligatorios.");
+            return;
         }
 
-        async function subirProducto() {
-            const btn = document.getElementById('btn-subir');
-            const nombre = document.getElementById('p-nombre').value;
-            const precio = document.getElementById('p-precio').value;
-            const categoria = document.getElementById('p-categoria').value;
-            const fotos = document.getElementById('p-fotos').files;
+        btn.innerText = "⏳ PUBLICANDO...";
+        btn.disabled = true;
 
-            if(!nombre || !precio || !categoria || fotos.length === 0) {
-                alert("Faltan datos obligatorios y al menos una foto.");
+        const formData = new FormData();
+        formData.append('vendedor_id', parseInt(usuario.id));
+        formData.append('nombre', nombre);
+        formData.append('precio', precio);
+        formData.append('categoria', categoria);
+        formData.append('descripcion', document.getElementById('p-desc').value);
+        
+        for(let i=0; i<fotos.length; i++) {
+            formData.append('imagenes', fotos[i]);
+        }
+
+        try {
+            const res = await fetch('/productos', { method: 'POST', body: formData });
+            if(res.ok) {
+                alert("🚀 ¡Producto publicado con éxito!");
+                location.reload();
+            } else {
+                const error = await res.json();
+                alert("Error: " + (error.detail || "No se pudo subir el producto."));
+            }
+        } catch(e) {
+            alert("Error de red. Si las fotos son muy pesadas, intenta con unas más chicas.");
+        } finally {
+            btn.innerText = "PUBLICAR PRODUCTO";
+            btn.disabled = false;
+        }
+    }
+
+    async function cargarMisProductos() {
+        try {
+            const res = await fetch('/productos');
+            const todos = await res.json();
+            const misProds = todos.filter(p => p.vendedor_id === usuario.id);
+            const div = document.getElementById('mis-productos');
+            
+            if(misProds.length === 0) {
+                div.innerHTML = `<div class="text-center py-4 text-gray-400 font-medium">No tenés productos todavía.</div>`;
                 return;
             }
 
-            btn.innerText = "PUBLICANDO...";
-            btn.disabled = true;
+            div.innerHTML = misProds.map(p => {
+                // Validación de imagen segura
+                const imgUrl = p.imagenes_urls ? p.imagenes_urls.split(',')[0] : null;
+                const displayImg = imgUrl ? `<img src="${imgUrl}" class="w-full h-full object-cover rounded-lg">` : '📦';
 
-            const formData = new FormData();
-            formData.append('vendedor_id', parseInt(usuario.id));
-            formData.append('nombre', nombre);
-            formData.append('precio', precio);
-            formData.append('categoria', categoria);
-            formData.append('descripcion', document.getElementById('p-desc').value);
-            
-            for(let i=0; i<fotos.length; i++) {
-                formData.append('imagenes', fotos[i]);
-            }
-
-            try {
-                const res = await fetch('/productos', { method: 'POST', body: formData });
-                if(res.ok) {
-                    alert("¡Producto publicado con éxito!");
-                    location.reload();
-                } else {
-                    const error = await res.json();
-                    alert("Error: " + (error.detail || "Verifica el servidor"));
-                }
-            } catch(e) {
-                alert("Error de red. Verifica el tamaño de las fotos.");
-            } finally {
-                btn.innerText = "PUBLICAR PRODUCTO";
-                btn.disabled = false;
-            }
-        }
-
-        async function cargarMisProductos() {
-            try {
-                const res = await fetch('/productos');
-                const todos = await res.json();
-                const misProds = todos.filter(p => p.vendedor_id === usuario.id);
-                const div = document.getElementById('mis-productos');
-                
-                if(misProds.length === 0) {
-                    div.innerHTML = `<div class="text-center py-4 text-gray-400">No tenés productos todavía.</div>`;
-                    return;
-                }
-
-                div.innerHTML = misProds.map(p => `
+                return `
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-indigo-200 transition-all">
-                        <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-indigo-300">
-                            ${p.imagenes_urls ? `<img src="${p.imagenes_urls.split(',')[0]}" class="w-full h-full object-cover rounded-lg">` : '📦'}
+                        <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-indigo-300 overflow-hidden">
+                            ${displayImg}
                         </div>
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-gray-800 text-xs truncate w-32">${p.nombre}</h4>
+                        <div class="flex-grow overflow-hidden">
+                            <h4 class="font-bold text-gray-800 text-xs truncate">${p.nombre}</h4>
                             <p class="text-indigo-600 font-bold text-[10px]">$${p.precio}</p>
                         </div>
-                        <button class="text-gray-300 hover:text-red-500 transition-colors">🗑️</button>
+                        <button class="text-gray-300 hover:text-red-500 transition-colors p-2">🗑️</button>
                     </div>
-                `).join('');
-            } catch(e) {
-                document.getElementById('mis-productos').innerHTML = "Error al cargar.";
-            }
+                `;
+            }).join('');
+        } catch(e) {
+            document.getElementById('mis-productos').innerHTML = "<p class='text-red-400 text-xs'>Error al cargar productos.</p>";
         }
+    }
 
-        function cerrarSesion() {
-            localStorage.removeItem('usuario');
-            window.location.href = "/";
-        }
+    function cerrarSesion() {
+        localStorage.removeItem('usuario');
+        window.location.href = "/";
+    }
 
-        // Inicio
-        cargarDatosVendedor();
-        cargarMisProductos();
-    </script>
+    // Inicializar datos
+    cargarDatosVendedor();
+    cargarMisProductos();
+</script>
 </body>
 </html>
