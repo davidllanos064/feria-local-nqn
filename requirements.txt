@@ -1,7 +1,10 @@
 fastapi
 uvicorn
 sqlalchemy
-cloudinary
-jinja2
-python-multipart
 psycopg2-binary
+cloudinary
+python-multipart
+passlib
+bcrypt
+jinja2
+python-dotenv
