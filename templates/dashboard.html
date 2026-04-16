@@ -30,12 +30,18 @@
                 <div class="space-y-4">
                     <input id="p-nombre" type="text" placeholder="Nombre del producto" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-indigo-400">
                     <input id="p-precio" type="number" placeholder="Precio $" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-indigo-400">
+                    
                     <select id="p-categoria" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-indigo-400">
+                        <option value="" disabled selected>Seleccioná una categoría</option>
                         <option value="Tecnología">Tecnología</option>
                         <option value="Hogar">Hogar</option>
                         <option value="Moda">Moda</option>
                         <option value="Mascotas">Mascotas</option>
+                        <option value="Herramientas">Herramientas</option>
+                        <option value="Electrodomésticos">Electrodomésticos</option>
+                        <option value="Otros">Otros</option>
                     </select>
+
                     <textarea id="p-desc" placeholder="Descripción breve..." class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-indigo-400"></textarea>
                     
                     <div class="border-2 border-dashed border-gray-200 p-4 rounded-xl text-center">
@@ -50,7 +56,6 @@
             <div class="space-y-6">
                 <div class="bg-indigo-900 text-white p-6 rounded-3xl shadow-lg">
                     <h3 class="font-bold mb-4 flex items-center gap-2">💰 Datos de Cobro (CBU/Alias)</h3>
-                    <p class="text-xs text-indigo-200 mb-4">Estos datos se usarán para que los clientes te paguen directamente.</p>
                     <div class="space-y-3">
                         <input id="v-cbu" type="text" placeholder="Tu CBU" class="w-full p-3 bg-indigo-800 rounded-xl border-none text-white placeholder-indigo-400">
                         <input id="v-alias" type="text" placeholder="Tu Alias" class="w-full p-3 bg-indigo-800 rounded-xl border-none text-white placeholder-indigo-400">
@@ -70,20 +75,14 @@
 
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario'));
-        
-        // Si no hay usuario, mandarlo al inicio
         if (!usuario) { window.location.href = "/"; }
-
         document.getElementById('user-name').innerText = usuario.nombre;
 
         async function guardarPagos() {
-            const cbu = document.getElementById('v-cbu').value;
-            const alias = document.getElementById('v-alias').value;
-            
             const formData = new FormData();
-            formData.append('vendedor_id', usuario.id);
-            formData.append('cbu', cbu);
-            formData.append('alias', alias);
+            formData.append('vendedor_id', parseInt(usuario.id));
+            formData.append('cbu', document.getElementById('v-cbu').value);
+            formData.append('alias', document.getElementById('v-alias').value);
 
             const res = await fetch('/vendedor/configurar-pagos', { method: 'POST', body: formData });
             if(res.ok) alert("¡Datos de cobro guardados!");
@@ -91,32 +90,47 @@
 
         async function subirProducto() {
             const btn = document.getElementById('btn-subir');
+            const nombre = document.getElementById('p-nombre').value;
+            const precio = document.getElementById('p-precio').value;
+            const categoria = document.getElementById('p-categoria').value;
+            const fotos = document.getElementById('p-fotos').files;
+
+            if(!nombre || !precio || !categoria || fotos.length === 0) {
+                alert("Por favor completa nombre, precio, categoría y sube al menos una foto.");
+                return;
+            }
+
             btn.innerText = "Subiendo...";
             btn.disabled = true;
 
             const formData = new FormData();
-            formData.append('vendedor_id', usuario.id);
-            formData.append('nombre', document.getElementById('p-nombre').value);
-            formData.append('precio', document.getElementById('p-precio').value);
-            formData.append('categoria', document.getElementById('p-categoria').value);
+            formData.append('vendedor_id', parseInt(usuario.id));
+            formData.append('nombre', nombre);
+            formData.append('precio', precio);
+            formData.append('categoria', categoria);
             formData.append('descripcion', document.getElementById('p-desc').value);
             
-            const fotos = document.getElementById('p-fotos').files;
             for(let i=0; i<fotos.length; i++) {
                 formData.append('imagenes', fotos[i]);
             }
 
             try {
-                const res = await fetch('/productos', { method: 'POST', body: formData });
+                // El error de conexión suele ser por timeout, intentamos con fetch estándar
+                const res = await fetch('/productos', { 
+                    method: 'POST', 
+                    body: formData 
+                });
+
                 if(res.ok) {
                     alert("¡Producto publicado con éxito!");
                     location.reload();
                 } else {
                     const error = await res.json();
-                    alert("Error: " + error.detail);
+                    alert("Error del servidor: " + (error.detail || "Consulta los logs"));
                 }
             } catch(e) {
-                alert("Error de conexión");
+                console.error(e);
+                alert("Error de conexión: Revisa si las fotos son muy pesadas o si el servidor está activo.");
             } finally {
                 btn.innerText = "Publicar Producto";
                 btn.disabled = false;
@@ -128,24 +142,27 @@
             window.location.href = "/";
         }
 
-        // Cargar productos del vendedor al iniciar
         async function cargarMisProductos() {
-            const res = await fetch('/productos');
-            const todos = await res.json();
-            const misProds = todos.filter(p => p.vendedor_id === usuario.id);
-            const div = document.getElementById('mis-productos');
-            
-            if(misProds.length === 0) {
-                div.innerHTML = "Aún no tenés productos publicados.";
-                return;
-            }
+            try {
+                const res = await fetch('/productos');
+                const todos = await res.json();
+                const misProds = todos.filter(p => p.vendedor_id === usuario.id);
+                const div = document.getElementById('mis-productos');
+                
+                if(misProds.length === 0) {
+                    div.innerHTML = "Aún no tenés productos publicados.";
+                    return;
+                }
 
-            div.innerHTML = misProds.map(p => `
-                <div class="flex justify-between items-center border-b pb-2">
-                    <span>${p.nombre}</span>
-                    <span class="font-bold text-indigo-600">$${p.precio}</span>
-                </div>
-            `).join('');
+                div.innerHTML = misProds.map(p => `
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span>${p.nombre}</span>
+                        <span class="font-bold text-indigo-600">$${p.precio}</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                document.getElementById('mis-productos').innerHTML = "Error al cargar productos.";
+            }
         }
 
         cargarMisProductos();
