@@ -70,39 +70,42 @@
 
     <nav class="bg-indigo-700 pt-6 pb-2 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
                 <div class="flex-shrink-0 cursor-pointer text-center md:text-left" onclick="reproducirSonido('click'); resetPagina()">
                     <h1 class="text-white text-3xl font-extrabold tracking-tighter leading-tight">
                         Mercado <br>
                         <span class="text-yellow-400 text-xs font-bold tracking-[0.3em] uppercase opacity-90">Feria Neuquén</span>
                     </h1>
                 </div>
-                <div class="flex-grow max-w-2xl w-full relative">
-                    <input type="text" id="buscador" placeholder="Busca artesanías, tecnología y más..." 
+                
+                <div class="flex-grow max-w-xl w-full relative">
+                    <input type="text" id="buscador" placeholder="Busca artesanías..." 
                         class="w-full py-3 px-5 rounded-full shadow-inner text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 border-none bg-indigo-600/50 text-white placeholder-indigo-200">
                     <button class="absolute right-5 top-3.5 text-indigo-200">🔍</button>
                 </div>
+
+                <div class="flex items-center gap-2">
+                    <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[10px] text-white font-black uppercase tracking-wider px-4 py-2.5 rounded-full btn-adopcion transition-all shadow-md whitespace-nowrap">
+                        🐾 ADOPCIÓN
+                    </a>
+                    <button onclick="abrirRegistro()" class="text-[10px] text-white font-bold uppercase tracking-wider bg-indigo-800/50 hover:bg-indigo-600 px-4 py-2.5 rounded-full border border-yellow-400 transition-all whitespace-nowrap">
+                        👤 Mi Cuenta
+                    </button>
+                </div>
             </div>
             
-            <div id="contenedor-categorias" class="flex justify-start items-center gap-2 overflow-x-auto no-scrollbar pb-4 cursor-grab active:cursor-grabbing select-none">
-                <button onclick="reproducirSonido('click'); resetPagina()" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap shadow-md">Todas</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Tecnología')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Tecnología</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Hogar')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Hogar</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Moda')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Moda</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Mascotas')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Mascotas</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Herramientas')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Herramientas</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Electrodomésticos')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Electro</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Deporte')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Deporte</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Juguetes')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Juguetes</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Belleza')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Belleza</button>
-                <button onclick="reproducirSonido('click'); seleccionarCategoria('Otros')" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Otros</button>
-                
-                <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[11px] text-white font-black uppercase tracking-wider px-4 py-2 rounded-full btn-adopcion transition-all shadow-md whitespace-nowrap">
-                    🐾 ADOPCIÓN
-                </a>
-                <button onclick="abrirRegistro()" class="text-[11px] text-white font-bold uppercase tracking-wider hover:bg-indigo-600 px-4 py-2 rounded-full border border-yellow-400 transition-all ml-2 whitespace-nowrap">
-                    👤 Mi Cuenta
-                </button>
+            <div id="contenedor-categorias" class="flex justify-start items-center gap-2 overflow-x-auto no-scrollbar pb-4 cursor-grab active:cursor-grabbing select-none border-t border-indigo-600/30 pt-4">
+                <button onclick="intentarClick(event, () => resetPagina())" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap shadow-md">Todas</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Tecnología'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Tecnología</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Hogar'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Hogar</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Moda'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Moda</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Mascotas'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Mascotas</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Herramientas'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Herramientas</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Electrodomésticos'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Electro</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Deporte'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Deporte</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Juguetes'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Juguetes</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Belleza'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Belleza</button>
+                <button onclick="intentarClick(event, () => seleccionarCategoria('Otros'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Otros</button>
             </div>
         </div>
     </nav>
@@ -190,33 +193,51 @@
     let categoriaActual = '';
     let isAdmin = false;
 
-    // --- Lógica de Arrastre (Drag-to-Scroll) ---
+    // --- Lógica de Arrastre Inteligente (Drag vs Click) ---
     const slider = document.getElementById('contenedor-categorias');
     let isDown = false;
     let startX;
     let scrollLeft;
+    let moved = false; // Detectar si hubo movimiento real
 
     slider.addEventListener('mousedown', (e) => {
         isDown = true;
+        moved = false; // Reset al empezar
         slider.classList.replace('cursor-grab', 'cursor-grabbing');
         startX = e.pageX - slider.offsetLeft;
         scrollLeft = slider.scrollLeft;
     });
+
     slider.addEventListener('mouseleave', () => {
         isDown = false;
         slider.classList.replace('cursor-grabbing', 'cursor-grab');
     });
+
     slider.addEventListener('mouseup', () => {
         isDown = false;
         slider.classList.replace('cursor-grabbing', 'cursor-grab');
     });
+
     slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
-        e.preventDefault();
         const x = e.pageX - slider.offsetLeft;
         const walk = (x - startX) * 2; 
-        slider.scrollLeft = scrollLeft - walk;
+        
+        // Si el mouse se mueve más de 5px, consideramos que es arrastre
+        if (Math.abs(x - startX) > 5) {
+            moved = true;
+            e.preventDefault();
+            slider.scrollLeft = scrollLeft - walk;
+        }
     });
+
+    // Esta función envuelve la acción del botón
+    function intentarClick(e, accion) {
+        if (!moved) { // Si NO se movió el slider, es un clic válido
+            reproducirSonido('click');
+            accion();
+        }
+    }
 
     // --- Funciones de la App ---
     function reproducirSonido(tipo) {
