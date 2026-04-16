@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Vendedor - Feria Local NQN</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <h3 id="userNombre">Cargando...</h3>
+                        <p class="text-muted" id="userEmail"></p>
+                        <hr>
+                        <div class="badge bg-primary p-2 mb-2" id="userPlan">Plan: ...</div>
+                        <p class="small">Vence el: <span id="userVence">--/--</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm p-4">
+                    <h4>Configuración de Cobros</h4>
+                    <p class="text-muted">Ingresa tus datos para recibir pagos directos de los clientes.</p>
+                    <form id="formPagos">
+                        <input type="hidden" id="vendedorId" name="vendedor_id">
+                        <div class="mb-3">
+                            <label class="form-label">CBU / CVU</label>
+                            <input type="text" class="form-control" name="cbu" placeholder="22 dígitos">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Alias</label>
+                            <input type="text" class="form-control" name="alias" placeholder="ejemplo.mercado.pago">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Guardar Datos de Cobro</button>
+                    </form>
+                    <div id="msg" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Al cargar, recuperar datos del localStorage (que guardaremos al hacer login)
+        const user = JSON.parse(localStorage.getItem("usuario"));
+        if(!user) window.location.href = "/"; // Si no hay usuario, vuelve al inicio
+
+        document.getElementById('userNombre').innerText = user.nombre;
+        document.getElementById('userPlan').innerText = "Plan: " + user.plan;
+        document.getElementById('userVence').innerText = new Date(user.vencimiento).toLocaleDateString();
+        document.getElementById('vendedorId').value = user.id;
+
+        document.getElementById('formPagos').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const res = await fetch('/vendedor/configurar-pagos', { method: 'POST', body: formData });
+            const data = await res.json();
+            document.getElementById('msg').innerHTML = `<div class="alert alert-info">${data.status}</div>`;
+        };
+    </script>
+</body>
+</html>

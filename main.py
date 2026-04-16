@@ -29,9 +29,16 @@ def get_db():
     try: yield db
     finally: db.close()
 
+# --- RUTAS DE NAVEGACIÓN (HTML) ---
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def ver_dashboard(request: Request):
+    """Ruta para ver el panel del vendedor"""
+    return templates.TemplateResponse("dashboard.html", {"request": request})
 
 # --- SISTEMA DE USUARIOS (REGISTRO Y LOGIN) ---
 
@@ -41,7 +48,6 @@ async def registro(
     tipo: str = Form(...), whatsapp: str = Form(...), 
     plan: Optional[str] = Form("Basico"), db: Session = Depends(get_db)
 ):
-    # Bcrypt limita a 72 chars; truncamos para evitar Error 500
     hashed = pwd_context.hash(password[:72])
     vencimiento = datetime.now() + timedelta(days=30)
     
@@ -108,4 +114,33 @@ async def crear_producto(
 
     if vendedor.esta_bloqueado or (vendedor.plan_vencimiento and vendedor.plan_vencimiento < datetime.now()):
         vendedor.esta_bloqueado = True; db.commit()
-        raise HTTPException(403, "Perfil bloqueado o plan vencido
+        raise HTTPException(403, "Perfil bloqueado o plan vencido.")
+
+    conteo = db.query(models.Producto).filter(models.Producto.vendedor_id == vendedor_id).count()
+    limits = {"Basico": (10, 3), "Premium": (float('inf'), 10)}
+    max_p, max_f = limits.get(vendedor.plan, (1, 1))
+
+    if conteo >= max_p: raise HTTPException(400, f"Límite de productos alcanzado.")
+    if len(imagenes) > max_f: raise HTTPException(400, f"Máximo {max_f} fotos permitidas.")
+
+    urls = [cloudinary.uploader.upload(await img.read(), folder="feria_nqn")["secure_url"] for img in imagenes]
+    
+    nuevo = models.Producto(
+        nombre=nombre, precio=precio, categoria=categoria,
+        descripcion=descripcion, imagenes_urls=",".join(urls), vendedor_id=vendedor_id
+    )
+    db.add(nuevo); db.commit()
+    return {"status": "publicado", "fotos_subidas": len(urls)}
+
+# --- ADMIN Y MANTENIMIENTO ---
+
+@app.get("/admin/vendedores")
+async def admin_ver_vendedores(clave: str, db: Session = Depends(get_db)):
+    if clave != "neuquen2026": raise HTTPException(401)
+    return db.query(models.Usuario).filter(models.Usuario.tipo == "vendedor").all()
+
+@app.get("/reset-db-viki")
+async def reset_db():
+    models.Base.metadata.drop_all(bind=engine)
+    models.Base.metadata.create_all(bind=engine)
+    return {"mensaje": "Base de datos reseteada correctamente."}
