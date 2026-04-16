@@ -33,13 +33,19 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # Usamos nombres de parámetros explícitos (name y context)
+    return templates.TemplateResponse(
+        name="index.html", 
+        context={"request": request}
+    )
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def ver_dashboard(request: Request):
     """Ruta para ver el panel del vendedor"""
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
+    return templates.TemplateResponse(
+        name="dashboard.html", 
+        context={"request": request}
+    )
 # --- SISTEMA DE USUARIOS (REGISTRO Y LOGIN) ---
 
 @app.post("/registro")
