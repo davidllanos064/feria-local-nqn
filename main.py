@@ -9,7 +9,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from database import engine, SessionLocal
 
-# Seguridad - Ajustado para evitar errores de versión en Render
+# Seguridad
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
 
@@ -33,7 +33,7 @@ def get_db():
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# --- SISTEMA DE USUARIOS ---
+# --- SISTEMA DE USUARIOS (REGISTRO Y LOGIN) ---
 
 @app.post("/registro")
 async def registro(
@@ -41,7 +41,7 @@ async def registro(
     tipo: str = Form(...), whatsapp: str = Form(...), 
     plan: Optional[str] = Form("Basico"), db: Session = Depends(get_db)
 ):
-    # Truncamos a 72 chars por limitación de bcrypt para evitar el Error 500
+    # Bcrypt limita a 72 chars; truncamos para evitar Error 500
     hashed = pwd_context.hash(password[:72])
     vencimiento = datetime.now() + timedelta(days=30)
     
@@ -53,11 +53,45 @@ async def registro(
     db.add(nuevo); db.commit()
     return {"status": "ok", "vencimiento": vencimiento}
 
+@app.post("/login")
+async def login(email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    user = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not user or not pwd_context.verify(password[:72], user.password_hashed):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+    
+    return {
+        "status": "success",
+        "usuario": {
+            "id": user.id,
+            "nombre": user.nombre,
+            "plan": user.plan,
+            "vencimiento": user.plan_vencimiento,
+            "tipo": user.tipo
+        }
+    }
+
+# --- CONFIGURACIÓN DE COBRO (CBU / ALIAS) ---
+
+@app.post("/vendedor/configurar-pagos")
+async def configurar_pagos(
+    vendedor_id: int = Form(...), 
+    cbu: Optional[str] = Form(None), 
+    alias: Optional[str] = Form(None), 
+    db: Session = Depends(get_db)
+):
+    vendedor = db.query(models.Usuario).get(vendedor_id)
+    if not vendedor or vendedor.tipo != "vendedor":
+        raise HTTPException(404, "Vendedor no encontrado")
+    
+    vendedor.cbu = cbu
+    vendedor.alias = alias
+    db.commit()
+    return {"status": "datos de cobro actualizados"}
+
 # --- PRODUCTOS (GET y POST) ---
 
 @app.get("/productos")
 async def obtener_productos(categoria: Optional[str] = None, db: Session = Depends(get_db)):
-    """Soluciona el Error 405: Ahora permite ver productos con GET"""
     query = db.query(models.Producto)
     if categoria:
         query = query.filter(models.Producto.categoria == categoria)
@@ -72,55 +106,6 @@ async def crear_producto(
     vendedor = db.query(models.Usuario).get(vendedor_id)
     if not vendedor: raise HTTPException(404, "Vendedor no encontrado.")
 
-    # Control de Vencimiento/Bloqueo
     if vendedor.esta_bloqueado or (vendedor.plan_vencimiento and vendedor.plan_vencimiento < datetime.now()):
         vendedor.esta_bloqueado = True; db.commit()
-        raise HTTPException(403, "Perfil bloqueado o plan vencido.")
-
-    # Límites de Plan
-    conteo = db.query(models.Producto).filter(models.Producto.vendedor_id == vendedor_id).count()
-    limits = {"Basico": (10, 3), "Premium": (float('inf'), 10)} # (max_prod, max_fotos)
-    max_p, max_f = limits.get(vendedor.plan, (1, 1))
-
-    if conteo >= max_p: raise HTTPException(400, f"Límite de productos alcanzado para plan {vendedor.plan}")
-    if len(imagenes) > max_f: raise HTTPException(400, f"Tu plan permite máximo {max_f} fotos.")
-
-    urls = []
-    for img in imagenes:
-        res = cloudinary.uploader.upload(await img.read(), folder="feria_nqn")
-        urls.append(res["secure_url"])
-    
-    nuevo = models.Producto(
-        nombre=nombre, precio=precio, categoria=categoria,
-        descripcion=descripcion, imagenes_urls=",".join(urls), vendedor_id=vendedor_id
-    )
-    db.add(nuevo); db.commit()
-    return {"status": "publicado", "fotos_subidas": len(urls)}
-
-# --- MERCADO PAGO Y ADMIN ---
-
-@app.post("/webhook-pagos")
-async def webhook_mercadopago(request: Request, db: Session = Depends(get_db)):
-    datos = await request.json()
-    # Lógica de notificación aquí
-    return {"status": "received"}
-
-@app.get("/admin/vendedores")
-async def admin_ver_vendedores(clave: str, db: Session = Depends(get_db)):
-    if clave != "neuquen2026": raise HTTPException(401)
-    return db.query(models.Usuario).filter(models.Usuario.tipo == "vendedor").all()
-
-@app.post("/admin/actualizar-plan")
-async def admin_plan(id: int, clave: str, nuevo_plan: str, db: Session = Depends(get_db)):
-    if clave != "neuquen2026": raise HTTPException(401)
-    u = db.query(models.Usuario).get(id)
-    u.plan, u.esta_bloqueado = nuevo_plan, False
-    u.plan_vencimiento = datetime.now() + timedelta(days=30)
-    db.commit()
-    return {"status": "plan actualizado"}
-
-@app.get("/reset-db-viki")
-async def reset_db():
-    models.Base.metadata.drop_all(bind=engine)
-    models.Base.metadata.create_all(bind=engine)
-    return {"mensaje": "Base de datos reseteada."}
+        raise HTTPException(403, "Perfil bloqueado o plan vencido
