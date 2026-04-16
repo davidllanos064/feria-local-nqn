@@ -88,8 +88,8 @@
                     <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[10px] text-white font-black uppercase tracking-wider px-4 py-2.5 rounded-full btn-adopcion transition-all shadow-md whitespace-nowrap">
                         🐾 ADOPCIÓN
                     </a>
-                    <button onclick="abrirRegistro()" class="text-[10px] text-white font-bold uppercase tracking-wider bg-indigo-800/50 hover:bg-indigo-600 px-4 py-2.5 rounded-full border border-yellow-400 transition-all whitespace-nowrap">
-                        👤 Mi Cuenta
+                    <button onclick="irAlDashboard()" class="bg-indigo-700 text-white px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-indigo-800 transition">
+                        👤 MI CUENTA
                     </button>
                 </div>
             </div>
@@ -290,7 +290,15 @@
             reproducirSonido('success');
         }
     }
-
+function irAlDashboard() {
+    const usuario = localStorage.getItem('usuario');
+    if (usuario) {
+        window.location.href = "/dashboard"; // Asegúrate que esta ruta coincida con tu backend
+    } else {
+        alert("Por favor, inicia sesión primero.");
+        // Aquí podrías abrir el modal de login automáticamente
+    }
+}
     window.onload = () => cargar();
     </script>
 </body>
