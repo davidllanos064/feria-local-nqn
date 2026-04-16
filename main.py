@@ -33,19 +33,22 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # Usamos nombres de parámetros explícitos (name y context)
+    """Carga la página principal"""
     return templates.TemplateResponse(
+        request=request, 
         name="index.html", 
-        context={"request": request}
+        context={}
     )
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def ver_dashboard(request: Request):
-    """Ruta para ver el panel del vendedor"""
+    """Ruta para ver el panel del vendedor - Corregida para Render"""
     return templates.TemplateResponse(
+        request=request, 
         name="dashboard.html", 
-        context={"request": request}
+        context={}
     )
+
 # --- SISTEMA DE USUARIOS (REGISTRO Y LOGIN) ---
 
 @app.post("/registro")
@@ -91,7 +94,7 @@ async def configurar_pagos(
     alias: Optional[str] = Form(None), 
     db: Session = Depends(get_db)
 ):
-    vendedor = db.query(models.Usuario).get(vendedor_id)
+    vendedor = db.query(models.Usuario).filter(models.Usuario.id == vendedor_id).first()
     if not vendedor or vendedor.tipo != "vendedor":
         raise HTTPException(404, "Vendedor no encontrado")
     
@@ -115,7 +118,7 @@ async def crear_producto(
     categoria: str = Form(...), descripcion: str = Form(None),
     imagenes: List[UploadFile] = File(...), db: Session = Depends(get_db)
 ):
-    vendedor = db.query(models.Usuario).get(vendedor_id)
+    vendedor = db.query(models.Usuario).filter(models.Usuario.id == vendedor_id).first()
     if not vendedor: raise HTTPException(404, "Vendedor no encontrado.")
 
     if vendedor.esta_bloqueado or (vendedor.plan_vencimiento and vendedor.plan_vencimiento < datetime.now()):
@@ -129,7 +132,11 @@ async def crear_producto(
     if conteo >= max_p: raise HTTPException(400, f"Límite de productos alcanzado.")
     if len(imagenes) > max_f: raise HTTPException(400, f"Máximo {max_f} fotos permitidas.")
 
-    urls = [cloudinary.uploader.upload(await img.read(), folder="feria_nqn")["secure_url"] for img in imagenes]
+    urls = []
+    for img in imagenes:
+        content = await img.read()
+        res = cloudinary.uploader.upload(content, folder="feria_nqn")
+        urls.append(res["secure_url"])
     
     nuevo = models.Producto(
         nombre=nombre, precio=precio, categoria=categoria,
