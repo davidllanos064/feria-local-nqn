@@ -20,7 +20,6 @@
         .product-img { height: 180px; object-fit: contain; padding: 10px; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
-        /* Estilos para el arrastre */
         .cursor-grab { cursor: grab; }
         .cursor-grabbing { cursor: grabbing; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -84,12 +83,15 @@
                     <button class="absolute right-5 top-3.5 text-indigo-200">🔍</button>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
                     <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[10px] text-white font-black uppercase tracking-wider px-4 py-2.5 rounded-full btn-adopcion transition-all shadow-md whitespace-nowrap">
                         🐾 ADOPCIÓN
                     </a>
-                    <button onclick="irAlDashboard()" class="bg-indigo-700 text-white px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-indigo-800 transition">
-                        👤 MI CUENTA
+                    <button onclick="irAlDashboard()" class="text-white hover:text-indigo-200 text-xs font-semibold uppercase tracking-widest transition-colors">
+                        Mi Cuenta
+                    </button>
+                    <button onclick="abrirRegistro()" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-transform active:scale-95 shadow-md">
+                        Registrarse
                     </button>
                 </div>
             </div>
@@ -193,53 +195,32 @@
     let categoriaActual = '';
     let isAdmin = false;
 
-    // --- Lógica de Arrastre Inteligente (Drag vs Click) ---
+    // --- Lógica de Arrastre ---
     const slider = document.getElementById('contenedor-categorias');
     let isDown = false;
     let startX;
     let scrollLeft;
-    let moved = false; // Detectar si hubo movimiento real
+    let moved = false;
 
     slider.addEventListener('mousedown', (e) => {
-        isDown = true;
-        moved = false; // Reset al empezar
+        isDown = true; moved = false;
         slider.classList.replace('cursor-grab', 'cursor-grabbing');
         startX = e.pageX - slider.offsetLeft;
         scrollLeft = slider.scrollLeft;
     });
 
-    slider.addEventListener('mouseleave', () => {
-        isDown = false;
-        slider.classList.replace('cursor-grabbing', 'cursor-grab');
-    });
-
-    slider.addEventListener('mouseup', () => {
-        isDown = false;
-        slider.classList.replace('cursor-grabbing', 'cursor-grab');
-    });
+    slider.addEventListener('mouseleave', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
+    slider.addEventListener('mouseup', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
 
     slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         const x = e.pageX - slider.offsetLeft;
         const walk = (x - startX) * 2; 
-        
-        // Si el mouse se mueve más de 5px, consideramos que es arrastre
-        if (Math.abs(x - startX) > 5) {
-            moved = true;
-            e.preventDefault();
-            slider.scrollLeft = scrollLeft - walk;
-        }
+        if (Math.abs(x - startX) > 5) { moved = true; e.preventDefault(); slider.scrollLeft = scrollLeft - walk; }
     });
 
-    // Esta función envuelve la acción del botón
-    function intentarClick(e, accion) {
-        if (!moved) { // Si NO se movió el slider, es un clic válido
-            reproducirSonido('click');
-            accion();
-        }
-    }
+    function intentarClick(e, accion) { if (!moved) { reproducirSonido('click'); accion(); } }
 
-    // --- Funciones de la App ---
     function reproducirSonido(tipo) {
         const audio = document.getElementById(tipo === 'click' ? 'snd-click' : 'snd-success');
         if(audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
@@ -290,15 +271,27 @@
             reproducirSonido('success');
         }
     }
-function irAlDashboard() {
-    const usuario = localStorage.getItem('usuario');
-    if (usuario) {
-        window.location.href = "/dashboard"; // Asegúrate que esta ruta coincida con tu backend
-    } else {
-        alert("Por favor, inicia sesión primero.");
-        // Aquí podrías abrir el modal de login automáticamente
+
+    function irAlDashboard() {
+        const usuario = localStorage.getItem('usuario');
+        if (usuario) {
+            window.location.href = "/dashboard";
+        } else {
+            alert("Por favor, regístrate o inicia sesión primero.");
+        }
     }
-}
+
+    function abrirRegistro() {
+        reproducirSonido('click');
+        const nombre = prompt("Ingresá tu nombre para registrarte:");
+        if (nombre) {
+            const usuario = { id: Date.now(), nombre: nombre, fechaRegistro: new Date().toISOString() };
+            localStorage.setItem('usuario', JSON.stringify(usuario));
+            alert("¡Bienvenido/a " + nombre + "! Ya estás registrado.");
+            window.location.href = "/dashboard";
+        }
+    }
+
     window.onload = () => cargar();
     </script>
 </body>
