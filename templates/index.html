@@ -25,6 +25,12 @@
     <nav class="bg-indigo-700 pt-6 pb-2 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 max-w-6xl flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
             <h1 class="text-white text-3xl font-extrabold tracking-tighter leading-tight cursor-pointer" onclick="resetPagina()">Mercado <br><span class="text-yellow-400 text-xs font-bold tracking-[0.3em] uppercase">Feria Neuquén</span></h1>
+            
+            <div class="flex-grow max-w-xl w-full relative">
+                <input type="text" id="buscador" oninput="filtrarProductos()" placeholder="Busca artesanías..." class="w-full py-3 px-5 rounded-full shadow-inner text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 border-none bg-indigo-600/50 text-white placeholder-indigo-200">
+                <button class="absolute right-5 top-3.5 text-indigo-200">🔍</button>
+            </div>
+
             <div class="flex items-center gap-3">
                 <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[10px] text-white font-black uppercase tracking-wider px-4 py-2.5 rounded-full btn-adopcion transition-all shadow-md">🐾 ADOPCIÓN</a>
                 <button onclick="abrirRegistro()" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 px-5 py-2 rounded-full font-black text-xs uppercase shadow-md">Registrarse</button>
@@ -61,6 +67,16 @@
         function reproducirSonido(tipo) {
             const audio = document.getElementById('snd-click');
             audio.currentTime = 0; audio.play().catch(() => {});
+        }
+
+        // Nueva función para filtrar productos visualmente con el buscador
+        function filtrarProductos() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            const tarjetas = document.querySelectorAll('.product-card');
+            tarjetas.forEach(tarjeta => {
+                const nombreProducto = tarjeta.querySelector('h3').textContent.toLowerCase();
+                tarjeta.style.display = nombreProducto.includes(busqueda) ? '' : 'none';
+            });
         }
 
         async function cargar(cat = '') {
@@ -115,6 +131,7 @@
 
         function resetPagina() { 
             document.getElementById('titulo-seccion').innerText = 'Productos';
+            document.getElementById('buscador').value = '';
             cargar(); 
         }
         
