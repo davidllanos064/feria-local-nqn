@@ -7,292 +7,98 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Proxima+Nova:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --morado-principal: #4f46e5;
-            --morado-oscuro: #3730a3;
-            --amarillo-opaco: #eab308;
-        }
         body { font-family: 'Proxima Nova', sans-serif; scroll-behavior: smooth; }
-        .product-card:hover { 
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); 
-            transform: translateY(-4px);
-        }
+        .product-card:hover { box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); transform: translateY(-4px); }
         .product-img { height: 180px; object-fit: contain; padding: 10px; }
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        
-        .cursor-grab { cursor: grab; }
-        .cursor-grabbing { cursor: grabbing; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .admin-trigger {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 60;
-        }
-
-        .titulo-remarcado {
-            color: rgba(31, 41, 55, 0.9);
-            font-weight: 900;
-            letter-spacing: -0.05em;
-        }
-        .subtitulo-opaco {
-            color: rgba(107, 114, 128, 0.6);
-            font-weight: 700;
-        }
-        .miniatura-activa { border-color: #4f46e5 !important; opacity: 1 !important; }
-        .miniatura { opacity: 0.6; transition: all 0.2s; }
-        .miniatura:hover { opacity: 1; }
-
-        .btn-adopcion {
-            background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
-            animation: pulse-pink 2s infinite;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        @keyframes pulse-pink {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(219, 39, 119, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(219, 39, 119, 0); }
-        }
+        .admin-trigger { position: absolute; top: 1rem; right: 1rem; z-index: 60; }
+        .btn-adopcion { background: linear-gradient(135deg, #f472b6 0%, #db2777 100%); animation: pulse-pink 2s infinite; }
+        @keyframes pulse-pink { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(219, 39, 119, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(219, 39, 119, 0); } }
     </style>
 </head>
 <body class="bg-[#f3f4f6] text-[#1f2937]">
 
-    <button onclick="reproducirSonido('click'); loginAdmin()" class="admin-trigger group flex items-center gap-2 bg-white/80 backdrop-blur-sm p-2 px-3 rounded-full shadow-md hover:bg-white transition-all border border-gray-200" title="Panel de Control">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+    <button onclick="reproducirSonido('click'); loginAdmin()" class="admin-trigger group flex items-center gap-2 bg-white/80 backdrop-blur-sm p-2 px-3 rounded-full shadow-md hover:bg-white transition-all border border-gray-200">
         <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 group-hover:text-indigo-600">Admin</span>
     </button>
 
     <nav class="bg-indigo-700 pt-6 pb-2 shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 max-w-6xl">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-                <div class="flex-shrink-0 cursor-pointer text-center md:text-left" onclick="reproducirSonido('click'); resetPagina()">
-                    <h1 class="text-white text-3xl font-extrabold tracking-tighter leading-tight">
-                        Mercado <br>
-                        <span class="text-yellow-400 text-xs font-bold tracking-[0.3em] uppercase opacity-90">Feria Neuquén</span>
-                    </h1>
-                </div>
-                
-                <div class="flex-grow max-w-xl w-full relative">
-                    <input type="text" id="buscador" placeholder="Busca artesanías..." 
-                        class="w-full py-3 px-5 rounded-full shadow-inner text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 border-none bg-indigo-600/50 text-white placeholder-indigo-200">
-                    <button class="absolute right-5 top-3.5 text-indigo-200">🔍</button>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[10px] text-white font-black uppercase tracking-wider px-4 py-2.5 rounded-full btn-adopcion transition-all shadow-md whitespace-nowrap">
-                        🐾 ADOPCIÓN
-                    </a>
-                    <button onclick="irAlDashboard()" class="text-white hover:text-indigo-200 text-xs font-semibold uppercase tracking-widest transition-colors">
-                        Mi Cuenta
-                    </button>
-                    <button onclick="abrirRegistro()" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-transform active:scale-95 shadow-md">
-                        Registrarse
-                    </button>
-                </div>
-            </div>
-            
-            <div id="contenedor-categorias" class="flex justify-start items-center gap-2 overflow-x-auto no-scrollbar pb-4 cursor-grab active:cursor-grabbing select-none border-t border-indigo-600/30 pt-4">
-                <button onclick="intentarClick(event, () => resetPagina())" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap shadow-md">Todas</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Tecnología'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Tecnología</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Hogar'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Hogar</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Moda'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Moda</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Mascotas'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Mascotas</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Herramientas'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Herramientas</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Electrodomésticos'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Electro</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Deporte'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Deporte</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Juguetes'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Juguetes</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Belleza'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Belleza</button>
-                <button onclick="intentarClick(event, () => seleccionarCategoria('Otros'))" class="bg-white/10 text-indigo-100 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap hover:bg-white/20 transition-all border border-indigo-400/30">Otros</button>
+        <div class="container mx-auto px-4 max-w-6xl flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+            <h1 class="text-white text-3xl font-extrabold tracking-tighter leading-tight cursor-pointer" onclick="resetPagina()">Mercado <br><span class="text-yellow-400 text-xs font-bold tracking-[0.3em] uppercase">Feria Neuquén</span></h1>
+            <div class="flex items-center gap-3">
+                <a href="https://petneuquen.streamlit.app/" target="_blank" class="text-[10px] text-white font-black uppercase tracking-wider px-4 py-2.5 rounded-full btn-adopcion transition-all shadow-md">🐾 ADOPCIÓN</a>
+                <button onclick="abrirRegistro()" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 px-5 py-2 rounded-full font-black text-xs uppercase shadow-md">Registrarse</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 max-w-6xl mt-6">
-        <button onclick="abrirRegistro()" class="group block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black text-center py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg transition-all transform hover:scale-[1.01]">
-            🚀 ¿Querés vender tus productos acá? Unite a la Feria hoy mismo
-        </button>
-    </div>
-
     <div class="container mx-auto px-4 max-w-6xl mt-10">
         <div id="seccion-admin" class="bg-white p-8 rounded-2xl shadow-xl mb-12 border-2 border-indigo-50 hidden">
-            <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-indigo-900">
-                <span class="bg-indigo-100 p-2 rounded-lg">🛠️</span> Panel de Administración
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-2 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Nombre del Producto</label>
-                    <input id="nombre" type="text" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400 transition">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Categoría</label>
-                    <select id="categoria" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400 bg-white">
-                        <option value="Tecnología">Tecnología</option>
-                        <option value="Hogar">Hogar</option>
-                        <option value="Moda">Moda</option>
-                        <option value="Mascotas">Mascotas</option>
-                        <option value="Herramientas">Herramientas</option>
-                        <option value="Electrodomésticos">Electrodomésticos</option>
-                        <option value="Deporte">Deporte</option>
-                        <option value="Juguetes">Juguetes</option>
-                        <option value="Belleza">Belleza</option>
-                        <option value="Otros">Otros</option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Precio</label>
-                    <input id="precio" type="number" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400">
-                </div>
-                <div class="md:col-span-4 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Fotos</label>
-                    <input id="archivos" type="file" accept="image/*" multiple class="w-full border-2 border-dashed border-gray-200 p-4 rounded-xl text-sm">
-                </div>
-                <div class="md:col-span-4 space-y-2">
-                    <label class="text-xs font-black text-indigo-400 uppercase tracking-tighter">Descripción</label>
-                    <textarea id="descripcion" rows="3" class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-400"></textarea>
-                </div>
-                <div class="md:col-span-4 flex justify-end pt-4">
-                    <button onclick="guardar()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-12 rounded-xl transition shadow-lg transform hover:-translate-y-1">
-                        Publicar Ahora
-                    </button>
-                </div>
-            </div>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-900">🛠️ Panel de Control</h2>
+            <button onclick="verUsuarios()" class="bg-gray-800 text-white p-3 rounded-lg text-xs font-bold uppercase hover:bg-black transition">Ver Usuarios Registrados</button>
+            <div id="lista-usuarios" class="mt-4 bg-gray-50 p-4 rounded-xl min-h-[50px] border"></div>
         </div>
 
-        <div class="mb-10">
-            <h2 id="titulo-seccion" class="text-5xl titulo-remarcado">Productos</h2>
-            <p class="text-2xl subtitulo-opaco mt-[-5px]">y oportunidades</p>
-        </div>
-        
-        <div id="lista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-24"></div>
-    </div>
-
-    <div id="modal-detalle" class="fixed inset-0 bg-indigo-900/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl rounded-[32px] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
-            <div class="md:w-1/2 bg-gray-50 p-6 flex flex-col justify-center items-center border-r relative">
-                <button onclick="cerrarModal()" class="absolute top-4 left-4 md:hidden text-gray-400 text-2xl">✕</button>
-                <img id="modal-img-principal" src="" class="max-h-[350px] object-contain drop-shadow-xl transition-all duration-300">
-                <div id="galeria-miniaturas" class="flex gap-2 mt-6 overflow-x-auto p-2 w-full justify-center"></div>
-            </div>
-            <div class="md:w-1/2 p-10 flex flex-col overflow-y-auto text-gray-800">
-                <h2 id="modal-nombre" class="text-4xl font-black leading-tight mb-2"></h2>
-                <p id="modal-precio" class="text-3xl font-light text-indigo-600 mb-6"></p>
-                <p id="modal-desc" class="text-gray-600 mb-6"></p>
-                <button onclick="cerrarModal()" class="bg-indigo-600 text-white py-4 rounded-xl font-bold">Cerrar</button>
-            </div>
-        </div>
+        <h2 id="titulo-seccion" class="text-5xl font-black text-gray-800">Productos</h2>
+        <div id="lista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-8 mb-24"></div>
     </div>
 
     <audio id="snd-click" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    <audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
 
     <script>
-    const API_URL = '/productos'; 
-    let categoriaActual = '';
-    let isAdmin = false;
+        const API_URL = '/productos';
 
-    // --- Lógica de Arrastre ---
-    const slider = document.getElementById('contenedor-categorias');
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-    let moved = false;
+        function reproducirSonido(tipo) {
+            const audio = document.getElementById('snd-click');
+            audio.currentTime = 0; audio.play().catch(() => {});
+        }
 
-    slider.addEventListener('mousedown', (e) => {
-        isDown = true; moved = false;
-        slider.classList.replace('cursor-grab', 'cursor-grabbing');
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-    });
+        async function verUsuarios() {
+            try {
+                const res = await fetch('/usuarios');
+                const lista = await res.json();
+                let html = '<h3 class="font-bold mb-2">Usuarios:</h3>';
+                lista.forEach(u => html += `<div class="p-2 border-b text-sm">${u.nombre} - <b>${u.tipo}</b></div>`);
+                document.getElementById('lista-usuarios').innerHTML = html;
+            } catch (e) { alert("Error al conectar con el servidor"); }
+        }
 
-    slider.addEventListener('mouseleave', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
-    slider.addEventListener('mouseup', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
+        async function abrirRegistro() {
+            reproducirSonido('click');
+            const nombre = prompt("Ingresá tu nombre:");
+            const tipo = prompt("¿Sos Vendedor o Comprador?");
+            if (nombre && tipo) {
+                const usuario = { nombre, tipo, fecha: new Date().toISOString() };
+                localStorage.setItem('usuario', JSON.stringify(usuario));
+                await fetch('/registrar', { 
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(usuario) 
+                });
+                alert("¡Bienvenido/a " + nombre + "!");
+                window.location.href = "/dashboard";
+            }
+        }
 
-    slider.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2; 
-        if (Math.abs(x - startX) > 5) { moved = true; e.preventDefault(); slider.scrollLeft = scrollLeft - walk; }
-    });
+        function loginAdmin() {
+            const pass = prompt("Clave de Admin:");
+            if (pass === 'neuquen2026') document.getElementById('seccion-admin').classList.remove('hidden');
+        }
 
-    function intentarClick(e, accion) { if (!moved) { reproducirSonido('click'); accion(); } }
-
-    function reproducirSonido(tipo) {
-        const audio = document.getElementById(tipo === 'click' ? 'snd-click' : 'snd-success');
-        if(audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
-    }
-
-    async function cargar(cat = '') {
-        try {
-            let url = API_URL;
-            if(cat) url += `?categoria=${cat}`;
-            const res = await fetch(url);
+        async function cargar() {
+            const res = await fetch(API_URL);
             const productos = await res.json();
             const div = document.getElementById('lista');
-            div.innerHTML = ''; 
+            div.innerHTML = '';
             productos.forEach(p => {
-                const portada = p.imagenes_urls ? p.imagenes_urls.split(',')[0] : 'https://via.placeholder.com/300';
-                const divProducto = document.createElement('div');
-                divProducto.className = "product-card bg-white rounded-2xl overflow-hidden border border-gray-100 cursor-pointer transition-all";
-                divProducto.onclick = () => verDetalle(p);
-                divProducto.innerHTML = `
-                    <div class="p-2 flex items-center justify-center bg-white"><img src="${portada}" class="product-img"></div>
-                    <div class="p-5">
-                        <h3 class="text-sm font-semibold truncate text-gray-800">${p.nombre}</h3>
-                        <span class="text-xl font-bold text-indigo-600">$${p.precio}</span>
+                div.innerHTML += `
+                    <div class="product-card bg-white rounded-2xl p-4 border border-gray-100">
+                        <h3 class="font-semibold text-sm">${p.nombre}</h3>
+                        <p class="text-indigo-600 font-bold">$${p.precio}</p>
                     </div>`;
-                div.appendChild(divProducto);
             });
-        } catch (e) { console.error(e); }
-    }
-
-    function verDetalle(p) {
-        document.getElementById('modal-nombre').innerText = p.nombre;
-        document.getElementById('modal-precio').innerText = '$' + p.precio;
-        document.getElementById('modal-desc').innerText = p.descripcion;
-        document.getElementById('modal-img-principal').src = p.imagenes_urls.split(',')[0];
-        document.getElementById('modal-detalle').classList.remove('hidden');
-        reproducirSonido('click');
-    }
-
-    function cerrarModal() { document.getElementById('modal-detalle').classList.add('hidden'); }
-    function seleccionarCategoria(cat) { categoriaActual = cat; document.getElementById('titulo-seccion').innerText = cat; cargar(cat); }
-    function resetPagina() { categoriaActual = ''; document.getElementById('titulo-seccion').innerText = 'Productos'; cargar(); }
-    
-    function loginAdmin() {
-        const pass = prompt("Clave de Admin:");
-        if (pass === 'neuquen2026') {
-            isAdmin = true;
-            document.getElementById('seccion-admin').classList.remove('hidden');
-            reproducirSonido('success');
         }
-    }
 
-    function irAlDashboard() {
-        const usuario = localStorage.getItem('usuario');
-        if (usuario) {
-            window.location.href = "/dashboard";
-        } else {
-            alert("Por favor, regístrate o inicia sesión primero.");
-        }
-    }
-
-    function abrirRegistro() {
-        reproducirSonido('click');
-        const nombre = prompt("Ingresá tu nombre para registrarte:");
-        if (nombre) {
-            const usuario = { id: Date.now(), nombre: nombre, fechaRegistro: new Date().toISOString() };
-            localStorage.setItem('usuario', JSON.stringify(usuario));
-            alert("¡Bienvenido/a " + nombre + "! Ya estás registrado.");
-            window.location.href = "/dashboard";
-        }
-    }
-
-    window.onload = () => cargar();
+        function resetPagina() { window.location.reload(); }
+        window.onload = () => cargar();
     </script>
 </body>
 </html>
