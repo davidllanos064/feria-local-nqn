@@ -9,7 +9,7 @@ class ProductoBase(BaseModel):
 
 class Producto(ProductoBase):
     id: int
-    imagen_url: str # <--- Corregido
+    imagenes_urls: str 
 
     class Config:
         from_attributes = True

@@ -2,291 +2,59 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Vendedor - Feria Local</title>
+    <title>Panel de Vendedor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white transition-all transform active:scale-95; }
-    </style>
 </head>
-<body class="bg-[#f8fafc]">
-    <nav class="bg-indigo-700 text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto max-w-5xl flex justify-between items-center">
-            <div class="cursor-pointer" onclick="window.location.href='/'">
-                <h1 class="font-black tracking-tighter text-xl uppercase">Mi Panel <span class="text-yellow-400">Feria</span></h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <span id="user-display" class="hidden md:block text-xs font-semibold bg-indigo-800 px-3 py-1 rounded-full text-indigo-100"></span>
-                <button onclick="cerrarSesion()" class="text-[10px] bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg font-bold uppercase tracking-wider transition-colors">Salir</button>
-            </div>
-        </div>
+<body class="bg-gray-100 p-8">
+    <nav class="flex justify-between items-center mb-8">
+        <h1 class="text-2xl font-black text-indigo-700">MI PANEL</h1>
+        <button onclick="localStorage.removeItem('usuario'); location.href='/'" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">Salir</button>
     </nav>
 
-    <main class="container mx-auto p-4 max-w-5xl">
-        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 mb-8 mt-6 flex justify-between items-center">
-            <div>
-                <h2 class="text-3xl font-black text-gray-800 tracking-tight">¡Hola, <span id="user-name" class="text-indigo-600">Vendedor</span>! 👋</h2>
-                <p class="text-gray-500 font-medium">Gestioná tus productos y datos de cobro.</p>
-            </div>
-            <div class="hidden sm:block text-5xl">🏪</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <h2 class="font-bold text-xl mb-4">Publicar Producto</h2>
+            <input id="p-nombre" placeholder="Nombre" class="w-full p-3 mb-2 border rounded">
+            <input id="p-precio" type="number" placeholder="Precio" class="w-full p-3 mb-2 border rounded">
+            <input id="p-categoria" placeholder="Categoría" class="w-full p-3 mb-2 border rounded">
+            <input id="p-fotos" type="file" multiple class="w-full mb-4">
+            <button id="btn-subir" onclick="subirProducto()" class="w-full bg-indigo-600 text-white p-3 rounded-lg font-bold">Publicar</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 text-xl mb-6 flex items-center gap-2">
-                        <span class="bg-indigo-100 p-2 rounded-xl text-indigo-600">🚀</span> Publicar Producto
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Nombre</label>
-                            <input id="p-nombre" type="text" placeholder="Ej: Maceta Artesanal" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-400 focus:bg-white outline-none transition-all">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Precio ($)</label>
-                            <input id="p-precio" type="number" placeholder="0.00" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-400 focus:bg-white outline-none transition-all">
-                        </div>
-                        <div class="md:col-span-2 space-y-1">
-                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Categoría</label>
-                            <select id="p-categoria" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-400 focus:bg-white outline-none transition-all">
-                                <option value="" disabled selected>Seleccioná una categoría</option>
-                                <option value="Tecnología">Tecnología</option>
-                                <option value="Hogar">Hogar</option>
-                                <option value="Moda">Moda</option>
-                                <option value="Mascotas">Mascotas</option>
-                                <option value="Herramientas">Herramientas</option>
-                                <option value="Electrodomésticos">Electrodomésticos</option>
-                                <option value="Deporte">Deporte</option>
-                                <option value="Juguetes">Juguetes</option>
-                                <option value="Belleza">Belleza</option>
-                                <option value="Otros">Otros</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-2 space-y-1">
-                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Descripción</label>
-                            <textarea id="p-desc" rows="3" placeholder="Contale a tus clientes más sobre el producto..." class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-400 focus:bg-white outline-none transition-all"></textarea>
-                        </div>
-                        
-                        <div class="md:col-span-2 border-2 border-dashed border-indigo-100 p-8 rounded-2xl text-center hover:border-indigo-300 transition-colors bg-indigo-50/30">
-                            <input id="p-fotos" type="file" multiple accept="image/*" class="hidden">
-                            <label for="p-fotos" class="cursor-pointer">
-                                <div class="text-3xl mb-2">📸</div>
-                                <p class="text-sm font-bold text-indigo-900">Subir fotos del producto</p>
-                                <p class="text-[10px] text-indigo-400 uppercase font-bold mt-1">Hasta 5 imágenes (recomendado)</p>
-                            </label>
-                            <div id="previsualizacion" class="flex flex-wrap gap-2 mt-4 justify-center"></div>
-                        </div>
-
-                        <button onclick="subirProducto()" id="btn-subir" class="md:col-span-2 w-full bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 uppercase tracking-widest text-sm">
-                            Publicar Producto
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="bg-indigo-900 text-white p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl italic font-black">$$$</div>
-                    <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
-                        <span class="bg-indigo-800 p-2 rounded-lg text-yellow-400">💰</span> Cobros
-                    </h3>
-                    <div class="space-y-4">
-                        <div class="space-y-1">
-                            <label class="text-[9px] font-black uppercase text-indigo-300 ml-1">CBU / CVU</label>
-                            <input id="v-cbu" type="text" placeholder="00000031000..." class="w-full p-4 bg-indigo-800 rounded-xl border-none text-white placeholder-indigo-400 focus:ring-2 focus:ring-yellow-400 transition-all">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[9px] font-black uppercase text-indigo-300 ml-1">Alias de cuenta</label>
-                            <input id="v-alias" type="text" placeholder="MI.CUENTA.FERIA" class="w-full p-4 bg-indigo-800 rounded-xl border-none text-white placeholder-indigo-400 focus:ring-2 focus:ring-yellow-400 transition-all">
-                        </div>
-                        <button onclick="guardarPagos()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-black py-4 rounded-xl text-xs uppercase tracking-widest transition-all">
-                            Actualizar Datos
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 text-lg mb-4">Mis Publicaciones</h3>
-                    <div id="mis-productos" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 hide-scroll">
-                        <div class="animate-pulse flex space-x-4">
-                            <div class="flex-1 space-y-4 py-1">
-                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <h2 class="font-bold text-xl mb-4">Configurar Cobros</h2>
+            <input id="v-cbu" placeholder="CBU" class="w-full p-3 mb-2 border rounded">
+            <input id="v-alias" placeholder="Alias" class="w-full p-3 mb-2 border rounded">
+            <button onclick="guardarPagos()" class="w-full bg-green-600 text-white p-3 rounded-lg font-bold">Guardar Datos</button>
         </div>
-    </main>
+    </div>
 
-   <script>
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    
-    // Si no hay usuario, redirigir al inicio inmediatamente
-    if (!usuario) { 
-        window.location.href = "/"; 
-    } else {
-        document.getElementById('user-name').innerText = usuario.nombre;
-        document.getElementById('user-display').innerText = usuario.email;
-    }
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario'));
+        if (!usuario) location.href = "/";
 
-    // --- Cargar datos previos de pago ---
-    async function cargarDatosVendedor() {
-        try {
-            const res = await fetch(`/vendedor/${usuario.id}`);
-            if(res.ok) {
-                const data = await res.json();
-                // Usamos || '' para evitar que aparezca "undefined" en los campos
-                document.getElementById('v-cbu').value = data.cbu || '';
-                document.getElementById('v-alias').value = data.alias || '';
-            }
-        } catch(e) { 
-            console.error("Error cargando datos de vendedor:", e); 
-        }
-    }
+        async function subirProducto() {
+            const formData = new FormData();
+            formData.append('vendedor_id', usuario.id);
+            formData.append('nombre', document.getElementById('p-nombre').value);
+            formData.append('precio', document.getElementById('p-precio').value);
+            formData.append('categoria', document.getElementById('p-categoria').value);
+            const fotos = document.getElementById('p-fotos').files;
+            for(let i=0; i<fotos.length; i++) formData.append('imagenes', fotos[i]);
 
-    // --- Previsualización de imágenes ---
-    document.getElementById('p-fotos').addEventListener('change', function(e) {
-        const container = document.getElementById('previsualizacion');
-        container.innerHTML = '';
-        
-        // Limitar a 5 fotos
-        const files = Array.from(this.files).slice(0, 5);
-        
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = document.createElement('img');
-                img.src = event.target.result;
-                img.className = "w-16 h-16 object-cover rounded-lg border-2 border-indigo-200 shadow-sm";
-                container.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-
-    async function guardarPagos() {
-        const cbu = document.getElementById('v-cbu').value.trim();
-        const alias = document.getElementById('v-alias').value.trim();
-        
-        if(!cbu || !alias) {
-            alert("Por favor completa CBU y Alias para recibir pagos.");
-            return;
-        }
-
-        // Validación básica de CBU Argentino
-        if(cbu.length !== 22 && cbu.length !== 0) {
-            alert("El CBU debe tener 22 dígitos.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('vendedor_id', parseInt(usuario.id));
-        formData.append('cbu', cbu);
-        formData.append('alias', alias);
-
-        try {
-            const res = await fetch('/vendedor/configurar-pagos', { method: 'POST', body: formData });
-            if(res.ok) {
-                alert("✅ ¡Datos de cobro guardados!");
-            }
-        } catch(e) {
-            alert("Error al conectar con el servidor.");
-        }
-    }
-
-    async function subirProducto() {
-        const btn = document.getElementById('btn-subir');
-        const nombre = document.getElementById('p-nombre').value.trim();
-        const precio = document.getElementById('p-precio').value;
-        const categoria = document.getElementById('p-categoria').value;
-        const fotos = document.getElementById('p-fotos').files;
-
-        if(!nombre || !precio || !categoria || fotos.length === 0) {
-            alert("Faltan datos: Nombre, Precio, Categoría y al menos una foto son obligatorios.");
-            return;
-        }
-
-        btn.innerText = "⏳ PUBLICANDO...";
-        btn.disabled = true;
-
-        const formData = new FormData();
-        formData.append('vendedor_id', parseInt(usuario.id));
-        formData.append('nombre', nombre);
-        formData.append('precio', precio);
-        formData.append('categoria', categoria);
-        formData.append('descripcion', document.getElementById('p-desc').value);
-        
-        for(let i=0; i<fotos.length; i++) {
-            formData.append('imagenes', fotos[i]);
-        }
-
-        try {
             const res = await fetch('/productos', { method: 'POST', body: formData });
-            if(res.ok) {
-                alert("🚀 ¡Producto publicado con éxito!");
-                location.reload();
-            } else {
-                const error = await res.json();
-                alert("Error: " + (error.detail || "No se pudo subir el producto."));
-            }
-        } catch(e) {
-            alert("Error de red. Si las fotos son muy pesadas, intenta con unas más chicas.");
-        } finally {
-            btn.innerText = "PUBLICAR PRODUCTO";
-            btn.disabled = false;
+            if(res.ok) alert("¡Producto publicado!");
         }
-    }
 
-    async function cargarMisProductos() {
-        try {
-            const res = await fetch('/productos');
-            const todos = await res.json();
-            const misProds = todos.filter(p => p.vendedor_id === usuario.id);
-            const div = document.getElementById('mis-productos');
+        async function guardarPagos() {
+            const formData = new FormData();
+            formData.append('vendedor_id', usuario.id);
+            formData.append('cbu', document.getElementById('v-cbu').value);
+            formData.append('alias', document.getElementById('v-alias').value);
             
-            if(misProds.length === 0) {
-                div.innerHTML = `<div class="text-center py-4 text-gray-400 font-medium">No tenés productos todavía.</div>`;
-                return;
-            }
-
-            div.innerHTML = misProds.map(p => {
-                // Validación de imagen segura
-                const imgUrl = p.imagenes_urls ? p.imagenes_urls.split(',')[0] : null;
-                const displayImg = imgUrl ? `<img src="${imgUrl}" class="w-full h-full object-cover rounded-lg">` : '📦';
-
-                return `
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-indigo-200 transition-all">
-                        <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-indigo-300 overflow-hidden">
-                            ${displayImg}
-                        </div>
-                        <div class="flex-grow overflow-hidden">
-                            <h4 class="font-bold text-gray-800 text-xs truncate">${p.nombre}</h4>
-                            <p class="text-indigo-600 font-bold text-[10px]">$${p.precio}</p>
-                        </div>
-                        <button class="text-gray-300 hover:text-red-500 transition-colors p-2">🗑️</button>
-                    </div>
-                `;
-            }).join('');
-        } catch(e) {
-            document.getElementById('mis-productos').innerHTML = "<p class='text-red-400 text-xs'>Error al cargar productos.</p>";
+            await fetch('/vendedor/configurar-pagos', { method: 'POST', body: formData });
+            alert("Datos actualizados");
         }
-    }
-
-    function cerrarSesion() {
-        localStorage.removeItem('usuario');
-        window.location.href = "/";
-    }
-
-    // Inicializar datos
-    cargarDatosVendedor();
-    cargarMisProductos();
-</script>
+    </script>
 </body>
 </html>
