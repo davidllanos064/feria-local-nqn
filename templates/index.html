@@ -9,7 +9,6 @@
     <style>
         body { font-family: 'Proxima Nova', sans-serif; scroll-behavior: smooth; }
         .product-card:hover { box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); transform: translateY(-4px); }
-        .product-img { height: 180px; object-fit: contain; padding: 10px; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .admin-trigger { position: absolute; top: 1rem; right: 1rem; z-index: 60; }
         .btn-adopcion { background: linear-gradient(135deg, #f472b6 0%, #db2777 100%); animation: pulse-pink 2s infinite; }
@@ -41,10 +40,13 @@
     <div class="container mx-auto px-4 max-w-6xl mt-6">
         <div id="contenedor-categorias" class="flex justify-start items-center gap-2 overflow-x-auto no-scrollbar pb-4 border-b border-indigo-200">
             <button onclick="resetPagina()" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap">Todas</button>
+            <button onclick="seleccionarCategoria('Artesanías')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Artesanías</button>
+            <button onclick="seleccionarCategoria('Comida')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Comida</button>
+            <button onclick="seleccionarCategoria('Ropa')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Ropa</button>
             <button onclick="seleccionarCategoria('Tecnología')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Tecnología</button>
             <button onclick="seleccionarCategoria('Hogar')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Hogar</button>
-            <button onclick="seleccionarCategoria('Moda')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Moda</button>
             <button onclick="seleccionarCategoria('Mascotas')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Mascotas</button>
+            <button onclick="seleccionarCategoria('Otros')" class="bg-white px-4 py-2 rounded-full text-[11px] font-bold uppercase whitespace-nowrap border hover:bg-indigo-50">Otros</button>
         </div>
     </div>
 
@@ -59,28 +61,10 @@
         <div id="lista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-8 mb-24"></div>
     </div>
 
-    <audio id="snd-click" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-
     <script>
-        const API_URL = '/productos';
-
-        function reproducirSonido(tipo) {
-            const audio = document.getElementById('snd-click');
-            audio.currentTime = 0; audio.play().catch(() => {});
-        }
-
-        // Nueva función para filtrar productos visualmente con el buscador
-        function filtrarProductos() {
-            const busqueda = document.getElementById('buscador').value.toLowerCase();
-            const tarjetas = document.querySelectorAll('.product-card');
-            tarjetas.forEach(tarjeta => {
-                const nombreProducto = tarjeta.querySelector('h3').textContent.toLowerCase();
-                tarjeta.style.display = nombreProducto.includes(busqueda) ? '' : 'none';
-            });
-        }
-
+        // Lógica de carga, categorías y buscador integrada
         async function cargar(cat = '') {
-            let url = cat ? `${API_URL}?categoria=${cat}` : API_URL;
+            let url = cat ? `/productos?categoria=${cat}` : '/productos';
             const res = await fetch(url);
             const productos = await res.json();
             const div = document.getElementById('lista');
@@ -94,47 +78,19 @@
             });
         }
 
+        function filtrarProductos() {
+            const termino = document.getElementById('buscador').value.toLowerCase();
+            document.querySelectorAll('.product-card').forEach(c => {
+                c.style.display = c.innerText.toLowerCase().includes(termino) ? 'block' : 'none';
+            });
+        }
+
         function seleccionarCategoria(cat) {
             document.getElementById('titulo-seccion').innerText = cat;
             cargar(cat);
         }
 
-        async function verUsuarios() {
-            try {
-                const res = await fetch('/usuarios');
-                const lista = await res.json();
-                let html = '<h3 class="font-bold mb-2">Usuarios:</h3>';
-                lista.forEach(u => html += `<div class="p-2 border-b text-sm">${u.nombre} - <b>${u.tipo}</b></div>`);
-                document.getElementById('lista-usuarios').innerHTML = html;
-            } catch (e) { alert("Error al conectar con el servidor"); }
-        }
-
-        async function abrirRegistro() {
-            reproducirSonido('click');
-            const nombre = prompt("Ingresá tu nombre:");
-            const tipo = prompt("¿Sos Vendedor o Comprador?");
-            if (nombre && tipo) {
-                const usuario = { nombre, tipo, fecha: new Date().toISOString() };
-                localStorage.setItem('usuario', JSON.stringify(usuario));
-                await fetch('/registrar', { 
-                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(usuario) 
-                });
-                alert("¡Bienvenido/a " + nombre + "!");
-                window.location.href = "/dashboard";
-            }
-        }
-
-        function loginAdmin() {
-            const pass = prompt("Clave de Admin:");
-            if (pass === 'neuquen2026') document.getElementById('seccion-admin').classList.remove('hidden');
-        }
-
-        function resetPagina() { 
-            document.getElementById('titulo-seccion').innerText = 'Productos';
-            document.getElementById('buscador').value = '';
-            cargar(); 
-        }
-        
+        function resetPagina() { window.location.reload(); }
         window.onload = () => cargar();
     </script>
 </body>
